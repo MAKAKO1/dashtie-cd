@@ -27,6 +27,16 @@
     position: sticky; top: 0; z-index: 100;
   }
   .header-left { display: flex; align-items: center; gap: 14px; }
+  .header-center {
+    flex: 1;
+    text-align: center;
+    font-family: 'Fredoka One', Arial;
+    font-size: 26px;
+    letter-spacing: 1px;
+    color: rgba(255,255,255,.95);
+    white-space: nowrap;
+    text-shadow: 0 1px 4px rgba(0,0,0,.15);
+  }
 
   .logo-tbc {
     background: white;
@@ -35,7 +45,10 @@
     text-align: center;
     line-height: 1.05;
     box-shadow: 0 2px 6px rgba(0,0,0,.15);
+    min-width: 86px;
   }
+  .logo-tbc img { max-height: 44px; display: block; margin: 0 auto; }
+  .logo-tbc .l-logo   { display: block; font-family: 'Fredoka One', Arial; font-size: 15px; color: #00AAFF; }
   .logo-tbc .l-the    { display: block; font-family: 'Fredoka One', Arial; font-size: 9px;  color: #00AAFF; letter-spacing: .5px; }
   .logo-tbc .l-brands { display: block; font-family: 'Fredoka One', Arial; font-size: 15px; color: #00AAFF; }
   .logo-tbc .l-club   { display: block; font-family: 'Fredoka One', Arial; font-size: 18px; color: #00AAFF; letter-spacing: 1px; }
@@ -300,15 +313,15 @@
 <div class="header">
   <div class="header-left">
     <div class="logo-tbc">
-      <span class="l-the">The</span>
-      <span class="l-brands">Brands</span>
-      <span class="l-club">CLUB</span>
+      <img src="logo.png" alt="TBC" onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
+      <span class="l-logo" style="display:none;">TBC</span>
     </div>
     <div>
       <div class="header-title">Stock x Tienda</div>
       <div class="header-date" id="headerDate"></div>
     </div>
   </div>
+  <div class="header-center">La Magia De Ser Tu</div>
   <div class="header-actions">
     <span class="user-badge" id="userBadge">Vista previa</span>
     <button class="btn btn-success" onclick="exportCSV()">&#11015; Exportar Excel</button>
