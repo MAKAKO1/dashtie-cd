@@ -325,6 +325,7 @@
   <div class="header-actions">
     <span class="user-badge" id="userBadge">Vista previa</span>
     <button class="btn btn-success" onclick="exportCSV()">&#11015; Exportar Excel</button>
+    <button class="btn btn-primary" onclick="openImportModal()" style="background:#1a6aab;color:white;border:none;">&#11014; Importar CSV</button>
     <button class="btn btn-light" onclick="window.print()">Imprimir</button>
     <button class="btn btn-light" onclick="forceRefresh()" title="Limpiar caché y recargar datos frescos">&#8635; Actualizar</button>
     <button class="btn btn-danger" style="background:#c0392b;color:white;border:none;" onclick="logout()">Salir</button>
@@ -376,6 +377,11 @@
     <option value="anterior">Anterior (pre-26)</option>
   </select>
 
+  <label>Licencia:</label>
+  <select id="filterLicencia" onchange="applyFilters()">
+    <option value="">— Todas —</option>
+  </select>
+
   <label>Buscar:</label>
   <input type="text" id="searchBox" placeholder="SKU, descripción..." oninput="applyFilters()" style="width:180px">
 
@@ -401,6 +407,25 @@
 
 <!-- ══════════ CONTENT ══════════ -->
 <div class="content" id="mainContent"></div>
+
+<!-- ══════════ IMPORT MODAL ══════════ -->
+<div id="importModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9000;align-items:center;justify-content:center;">
+  <div style="background:white;border-radius:14px;padding:28px 32px;max-width:540px;width:94%;box-shadow:0 8px 40px rgba(0,0,0,.25);">
+    <h3 style="font-family:'Fredoka One',Arial;font-size:18px;color:#0077BB;margin-bottom:4px;">&#11014; Importar Stock CSV</h3>
+    <p style="font-size:11.5px;color:#555;margin-bottom:16px;">Formato esperado (separador <strong>;</strong>):<br>
+      <code style="font-size:10.5px;background:#f0f4fa;padding:2px 6px;border-radius:4px;">
+        Codigo Almacen; Nombre Almacen; SKU Padre; SKU Hijo; Descripcion; Licencia; Stock BTIE; Stock BTRT; Temporada Comercial; Clase
+      </code>
+    </p>
+    <input type="file" id="importFile" accept=".csv,.txt"
+      style="width:100%;padding:8px;border:2px dashed #99D4F5;border-radius:8px;font-size:12px;margin-bottom:12px;cursor:pointer;">
+    <div id="importPreview" style="font-size:11px;color:#555;min-height:20px;margin-bottom:12px;"></div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;">
+      <button class="btn btn-light" onclick="closeImportModal()">Cancelar</button>
+      <button class="btn btn-primary" id="btnDoImport" onclick="doImport()" style="background:#1a6aab;color:white;border:none;" disabled>Importar</button>
+    </div>
+  </div>
+</div>
 
 <!-- ══════════ TOAST ══════════ -->
 <div class="toast" id="toast"></div>
@@ -436,34 +461,34 @@ const COLS = [
 // ═══════════════════════════════════════════════
 const MOCK_DATA = [
   // BTIE002
-  { id:'m01', codigo_almacen:'BTIE002', nombre_almacen:'TIENDA TBC OUTLET LA FABRICA PATIO', sku_padre:271010026, sku_hijo:27101002661093, descripcion:'HLW0038 - FIGURA PACK (4" FIGURA ASSORTMENT B)', en_stock:1, en_transito:0, temporada:'TT24', clase:'FIGURAS DE ACCION Y COLECCIONABLES' },
-  { id:'m02', codigo_almacen:'BTIE002', nombre_almacen:'TIENDA TBC OUTLET LA FABRICA PATIO', sku_padre:271014155, sku_hijo:27101415561092, descripcion:'NT412904 - NINTENDO 2,5" FIGURA DE ACCION ARTICULADA W34', en_stock:3, en_transito:12, temporada:'TTEM', clase:'FIGURAS DE ACCION Y COLECCIONABLES' },
-  { id:'m03', codigo_almacen:'BTIE002', nombre_almacen:'TIENDA TBC OUTLET LA FABRICA PATIO', sku_padre:335013266, sku_hijo:33501326661092, descripcion:'(HKT008-BP139A) MOCHILA BACKPACK ROJO HELLO KITTY', en_stock:1, en_transito:6, temporada:'Q125', clase:'UTILES ESCOLARES' },
-  { id:'m04', codigo_almacen:'BTIE002', nombre_almacen:'TIENDA TBC OUTLET LA FABRICA PATIO', sku_padre:241013129, sku_hijo:24101312961092, descripcion:'(TITANIO) BOTELLA METALICA INSIDE OUT 2', en_stock:1, en_transito:0, temporada:'TT24', clase:'BOTELLA' },
-  { id:'m05', codigo_almacen:'BTIE002', nombre_almacen:'TIENDA TBC OUTLET LA FABRICA PATIO', sku_padre:217010088, sku_hijo:21701008861092, descripcion:'POLERA MANGA CORTA NIÑA MINNIE MOUSE ROSA', en_stock:5, en_transito:20, temporada:'Q225', clase:'POLERA' },
-  { id:'m06', codigo_almacen:'BTIE002', nombre_almacen:'TIENDA TBC OUTLET LA FABRICA PATIO', sku_padre:217010091, sku_hijo:21701009161093, descripcion:'POLERA MANGA CORTA NIÑO SPIDER-MAN AZUL', en_stock:8, en_transito:0, temporada:'Q225', clase:'POLERA' },
-  { id:'m07', codigo_almacen:'BTIE002', nombre_almacen:'TIENDA TBC OUTLET LA FABRICA PATIO', sku_padre:331015200, sku_hijo:33101520061091, descripcion:'MOCHILA STITCH ESTAMPADA AZUL 16"', en_stock:2, en_transito:8, temporada:'Q125', clase:'UTILES ESCOLARES' },
-  { id:'m08', codigo_almacen:'BTIE002', nombre_almacen:'TIENDA TBC OUTLET LA FABRICA PATIO', sku_padre:290012045, sku_hijo:29001204561092, descripcion:'MUÑECA BARBIE FASHIONISTA #198 RUBIA VESTIDO ROSA', en_stock:4, en_transito:0, temporada:'Q225', clase:'MUÑECAS Y PELUCHES' },
+  { id:'m01', codigo_almacen:'BTIE002', nombre_almacen:'TIENDA TBC OUTLET LA FABRICA PATIO', sku_padre:'271010026', sku_hijo:'27101002661093', descripcion:'HLW0038 - FIGURA PACK (4" FIGURA ASSORTMENT B)', licencia:'HALO',        en_stock:1,  en_transito:0,   temporada:'TT24',  clase:'FIGURAS DE ACCION Y COLECCIONABLES' },
+  { id:'m02', codigo_almacen:'BTIE002', nombre_almacen:'TIENDA TBC OUTLET LA FABRICA PATIO', sku_padre:'271014155', sku_hijo:'27101415561092', descripcion:'NT412904 - NINTENDO 2,5" FIGURA DE ACCION ARTICULADA W34', licencia:'NINTENDO',    en_stock:3,  en_transito:12,  temporada:'TTEM',  clase:'FIGURAS DE ACCION Y COLECCIONABLES' },
+  { id:'m03', codigo_almacen:'BTIE002', nombre_almacen:'TIENDA TBC OUTLET LA FABRICA PATIO', sku_padre:'335013266', sku_hijo:'33501326661092', descripcion:'(HKT008-BP139A) MOCHILA BACKPACK ROJO HELLO KITTY',        licencia:'HELLO KITTY', en_stock:1,  en_transito:6,   temporada:'Q125',  clase:'UTILES ESCOLARES' },
+  { id:'m04', codigo_almacen:'BTIE002', nombre_almacen:'TIENDA TBC OUTLET LA FABRICA PATIO', sku_padre:'241013129', sku_hijo:'24101312961092', descripcion:'(TITANIO) BOTELLA METALICA INSIDE OUT 2',                  licencia:'DISNEY',      en_stock:1,  en_transito:0,   temporada:'TT24',  clase:'BOTELLA' },
+  { id:'m05', codigo_almacen:'BTIE002', nombre_almacen:'TIENDA TBC OUTLET LA FABRICA PATIO', sku_padre:'217010088', sku_hijo:'21701008861092', descripcion:'POLERA MANGA CORTA NIÑA MINNIE MOUSE ROSA',                licencia:'DISNEY',      en_stock:5,  en_transito:20,  temporada:'Q226',  clase:'POLERA' },
+  { id:'m06', codigo_almacen:'BTIE002', nombre_almacen:'TIENDA TBC OUTLET LA FABRICA PATIO', sku_padre:'217010091', sku_hijo:'21701009161093', descripcion:'POLERA MANGA CORTA NIÑO SPIDER-MAN AZUL',                  licencia:'MARVEL',      en_stock:8,  en_transito:0,   temporada:'Q226',  clase:'POLERA' },
+  { id:'m07', codigo_almacen:'BTIE002', nombre_almacen:'TIENDA TBC OUTLET LA FABRICA PATIO', sku_padre:'331015200', sku_hijo:'33101520061091', descripcion:'MOCHILA STITCH ESTAMPADA AZUL 16"',                        licencia:'DISNEY',      en_stock:2,  en_transito:8,   temporada:'Q126',  clase:'UTILES ESCOLARES' },
+  { id:'m08', codigo_almacen:'BTIE002', nombre_almacen:'TIENDA TBC OUTLET LA FABRICA PATIO', sku_padre:'290012045', sku_hijo:'29001204561092', descripcion:'MUÑECA BARBIE FASHIONISTA #198 RUBIA VESTIDO ROSA',        licencia:'MATTEL',      en_stock:4,  en_transito:0,   temporada:'Q226',  clase:'MUÑECAS Y PELUCHES' },
   // BTIE005
-  { id:'m09', codigo_almacen:'BTIE005', nombre_almacen:'TIENDA TBC MALL VIVO CENTRO', sku_padre:271010026, sku_hijo:27101002661093, descripcion:'HLW0038 - FIGURA PACK (4" FIGURA ASSORTMENT B)', en_stock:12, en_transito:24, temporada:'TT24', clase:'FIGURAS DE ACCION Y COLECCIONABLES' },
-  { id:'m10', codigo_almacen:'BTIE005', nombre_almacen:'TIENDA TBC MALL VIVO CENTRO', sku_padre:335013890, sku_hijo:33501389061091, descripcion:'ESTUCHE ESCOLAR DOBLE CIERRES STITCH CELESTE', en_stock:25, en_transito:0, temporada:'Q125', clase:'UTILES ESCOLARES' },
-  { id:'m11', codigo_almacen:'BTIE005', nombre_almacen:'TIENDA TBC MALL VIVO CENTRO', sku_padre:217010055, sku_hijo:21701005561092, descripcion:'POLERA NIÑA FROZEN ELSA LILA MANGA CORTA', en_stock:7, en_transito:30, temporada:'Q225', clase:'POLERA' },
-  { id:'m12', codigo_almacen:'BTIE005', nombre_almacen:'TIENDA TBC MALL VIVO CENTRO', sku_padre:217010060, sku_hijo:21701006061091, descripcion:'POLERON CON CAPUCHA NIÑO AVENGERS GRIS', en_stock:3, en_transito:15, temporada:'Q225', clase:'POLERON' },
-  { id:'m13', codigo_almacen:'BTIE005', nombre_almacen:'TIENDA TBC MALL VIVO CENTRO', sku_padre:290013110, sku_hijo:29001311061092, descripcion:'MUÑECA MINI PRINCESS BELLE VESTIDO AMARILLO', en_stock:9, en_transito:0, temporada:'TTEM', clase:'MUÑECAS Y PELUCHES' },
-  { id:'m14', codigo_almacen:'BTIE005', nombre_almacen:'TIENDA TBC MALL VIVO CENTRO', sku_padre:275014022, sku_hijo:27501402261091, descripcion:'AUTO HOT WHEELS 1:64 EDICION ESPECIAL COLORES SURTIDOS', en_stock:45, en_transito:0, temporada:'TT25', clase:'AUTOS Y VEHICULOS A CONTROL REMOTO' },
-  { id:'m15', codigo_almacen:'BTIE005', nombre_almacen:'TIENDA TBC MALL VIVO CENTRO', sku_padre:241013200, sku_hijo:24101320061092, descripcion:'BOTELLA TERMICA MARVEL AVENGERS 500ML NEGRA', en_stock:18, en_transito:36, temporada:'Q225', clase:'BOTELLA' },
+  { id:'m09', codigo_almacen:'BTIE005', nombre_almacen:'TIENDA TBC MALL VIVO CENTRO',         sku_padre:'271010026', sku_hijo:'27101002661093', descripcion:'HLW0038 - FIGURA PACK (4" FIGURA ASSORTMENT B)',           licencia:'HALO',        en_stock:12, en_transito:24,  temporada:'TT24',  clase:'FIGURAS DE ACCION Y COLECCIONABLES' },
+  { id:'m10', codigo_almacen:'BTIE005', nombre_almacen:'TIENDA TBC MALL VIVO CENTRO',         sku_padre:'335013890', sku_hijo:'33501389061091', descripcion:'ESTUCHE ESCOLAR DOBLE CIERRES STITCH CELESTE',            licencia:'DISNEY',      en_stock:25, en_transito:0,   temporada:'Q126',  clase:'UTILES ESCOLARES' },
+  { id:'m11', codigo_almacen:'BTIE005', nombre_almacen:'TIENDA TBC MALL VIVO CENTRO',         sku_padre:'217010055', sku_hijo:'21701005561092', descripcion:'POLERA NIÑA FROZEN ELSA LILA MANGA CORTA',                licencia:'DISNEY',      en_stock:7,  en_transito:30,  temporada:'Q226',  clase:'POLERA' },
+  { id:'m12', codigo_almacen:'BTIE005', nombre_almacen:'TIENDA TBC MALL VIVO CENTRO',         sku_padre:'217010060', sku_hijo:'21701006061091', descripcion:'POLERON CON CAPUCHA NIÑO AVENGERS GRIS',                  licencia:'MARVEL',      en_stock:3,  en_transito:15,  temporada:'Q226',  clase:'POLERON' },
+  { id:'m13', codigo_almacen:'BTIE005', nombre_almacen:'TIENDA TBC MALL VIVO CENTRO',         sku_padre:'290013110', sku_hijo:'29001311061092', descripcion:'MUÑECA MINI PRINCESS BELLE VESTIDO AMARILLO',             licencia:'DISNEY',      en_stock:9,  en_transito:0,   temporada:'TTEM',  clase:'MUÑECAS Y PELUCHES' },
+  { id:'m14', codigo_almacen:'BTIE005', nombre_almacen:'TIENDA TBC MALL VIVO CENTRO',         sku_padre:'275014022', sku_hijo:'27501402261091', descripcion:'AUTO HOT WHEELS 1:64 EDICION ESPECIAL COLORES SURTIDOS', licencia:'HOT WHEELS',  en_stock:45, en_transito:0,   temporada:'TT25',  clase:'AUTOS Y VEHICULOS A CONTROL REMOTO' },
+  { id:'m15', codigo_almacen:'BTIE005', nombre_almacen:'TIENDA TBC MALL VIVO CENTRO',         sku_padre:'241013200', sku_hijo:'24101320061092', descripcion:'BOTELLA TERMICA MARVEL AVENGERS 500ML NEGRA',             licencia:'MARVEL',      en_stock:18, en_transito:36,  temporada:'Q126',  clase:'BOTELLA' },
   // BTIE007
-  { id:'m16', codigo_almacen:'BTIE007', nombre_almacen:'TIENDA TBC MALL ARAUCO ESTACION', sku_padre:290012045, sku_hijo:29001204561092, descripcion:'MUÑECA BARBIE FASHIONISTA #198 RUBIA VESTIDO ROSA', en_stock:6, en_transito:0, temporada:'Q225', clase:'MUÑECAS Y PELUCHES' },
-  { id:'m17', codigo_almacen:'BTIE007', nombre_almacen:'TIENDA TBC MALL ARAUCO ESTACION', sku_padre:280015600, sku_hijo:28001560061091, descripcion:'LEGO CLASSIC MEDIUM CREATIVE BRICK BOX 484 PCS', en_stock:2, en_transito:10, temporada:'TT25', clase:'JUGUETES DIDACTICOS' },
-  { id:'m18', codigo_almacen:'BTIE007', nombre_almacen:'TIENDA TBC MALL ARAUCO ESTACION', sku_padre:335013266, sku_hijo:33501326661091, descripcion:'(HKT008-BP139A) MOCHILA BACKPACK ROJO HELLO KITTY', en_stock:4, en_transito:0, temporada:'Q125', clase:'UTILES ESCOLARES' },
-  { id:'m19', codigo_almacen:'BTIE007', nombre_almacen:'TIENDA TBC MALL ARAUCO ESTACION', sku_padre:217010088, sku_hijo:21701008861091, descripcion:'POLERA MANGA CORTA NIÑA MINNIE MOUSE ROSA', en_stock:11, en_transito:22, temporada:'Q225', clase:'POLERA' },
-  { id:'m20', codigo_almacen:'BTIE007', nombre_almacen:'TIENDA TBC MALL ARAUCO ESTACION', sku_padre:275014022, sku_hijo:27501402261092, descripcion:'AUTO HOT WHEELS 1:64 EDICION ESPECIAL COLORES SURTIDOS', en_stock:32, en_transito:0, temporada:'TT25', clase:'AUTOS Y VEHICULOS A CONTROL REMOTO' },
+  { id:'m16', codigo_almacen:'BTIE007', nombre_almacen:'TIENDA TBC MALL ARAUCO ESTACION',     sku_padre:'290012045', sku_hijo:'29001204561092', descripcion:'MUÑECA BARBIE FASHIONISTA #198 RUBIA VESTIDO ROSA',        licencia:'MATTEL',      en_stock:6,  en_transito:0,   temporada:'Q226',  clase:'MUÑECAS Y PELUCHES' },
+  { id:'m17', codigo_almacen:'BTIE007', nombre_almacen:'TIENDA TBC MALL ARAUCO ESTACION',     sku_padre:'280015600', sku_hijo:'28001560061091', descripcion:'LEGO CLASSIC MEDIUM CREATIVE BRICK BOX 484 PCS',          licencia:'LEGO',        en_stock:2,  en_transito:10,  temporada:'TT25',  clase:'JUGUETES DIDACTICOS' },
+  { id:'m18', codigo_almacen:'BTIE007', nombre_almacen:'TIENDA TBC MALL ARAUCO ESTACION',     sku_padre:'335013266', sku_hijo:'33501326661091', descripcion:'(HKT008-BP139A) MOCHILA BACKPACK ROJO HELLO KITTY',        licencia:'HELLO KITTY', en_stock:4,  en_transito:0,   temporada:'Q125',  clase:'UTILES ESCOLARES' },
+  { id:'m19', codigo_almacen:'BTIE007', nombre_almacen:'TIENDA TBC MALL ARAUCO ESTACION',     sku_padre:'217010088', sku_hijo:'21701008861091', descripcion:'POLERA MANGA CORTA NIÑA MINNIE MOUSE ROSA',                licencia:'DISNEY',      en_stock:11, en_transito:22,  temporada:'Q226',  clase:'POLERA' },
+  { id:'m20', codigo_almacen:'BTIE007', nombre_almacen:'TIENDA TBC MALL ARAUCO ESTACION',     sku_padre:'275014022', sku_hijo:'27501402261092', descripcion:'AUTO HOT WHEELS 1:64 EDICION ESPECIAL COLORES SURTIDOS', licencia:'HOT WHEELS',  en_stock:32, en_transito:0,   temporada:'TT25',  clase:'AUTOS Y VEHICULOS A CONTROL REMOTO' },
   // BTIE045
-  { id:'m21', codigo_almacen:'BTIE045', nombre_almacen:'TIENDA TBC PATIO OUTLET TEMUCO', sku_padre:271010026, sku_hijo:27101002661094, descripcion:'HLW0038 - FIGURA PACK (4" FIGURA ASSORTMENT B)', en_stock:8, en_transito:0, temporada:'TT24', clase:'FIGURAS DE ACCION Y COLECCIONABLES' },
-  { id:'m22', codigo_almacen:'BTIE045', nombre_almacen:'TIENDA TBC PATIO OUTLET TEMUCO', sku_padre:241013129, sku_hijo:24101312961094, descripcion:'(TITANIO) BOTELLA METALICA INSIDE OUT 2', en_stock:15, en_transito:30, temporada:'TT24', clase:'BOTELLA' },
-  { id:'m23', codigo_almacen:'BTIE045', nombre_almacen:'TIENDA TBC PATIO OUTLET TEMUCO', sku_padre:290012045, sku_hijo:29001204561094, descripcion:'MUÑECA BARBIE FASHIONISTA #198 RUBIA VESTIDO ROSA', en_stock:1, en_transito:12, temporada:'Q225', clase:'MUÑECAS Y PELUCHES' },
-  { id:'m24', codigo_almacen:'BTIE045', nombre_almacen:'TIENDA TBC PATIO OUTLET TEMUCO', sku_padre:217010060, sku_hijo:21701006061094, descripcion:'POLERON CON CAPUCHA NIÑO AVENGERS GRIS', en_stock:20, en_transito:0, temporada:'Q225', clase:'POLERON' },
-  { id:'m25', codigo_almacen:'BTIE045', nombre_almacen:'TIENDA TBC PATIO OUTLET TEMUCO', sku_padre:280015600, sku_hijo:28001560061094, descripcion:'LEGO CLASSIC MEDIUM CREATIVE BRICK BOX 484 PCS', en_stock:1051, en_transito:200, temporada:'TT25', clase:'JUGUETES DIDACTICOS' },
+  { id:'m21', codigo_almacen:'BTIE045', nombre_almacen:'TIENDA TBC PATIO OUTLET TEMUCO',      sku_padre:'271010026', sku_hijo:'27101002661094', descripcion:'HLW0038 - FIGURA PACK (4" FIGURA ASSORTMENT B)',           licencia:'HALO',        en_stock:8,  en_transito:0,   temporada:'TT24',  clase:'FIGURAS DE ACCION Y COLECCIONABLES' },
+  { id:'m22', codigo_almacen:'BTIE045', nombre_almacen:'TIENDA TBC PATIO OUTLET TEMUCO',      sku_padre:'241013129', sku_hijo:'24101312961094', descripcion:'(TITANIO) BOTELLA METALICA INSIDE OUT 2',                  licencia:'DISNEY',      en_stock:15, en_transito:30,  temporada:'TT24',  clase:'BOTELLA' },
+  { id:'m23', codigo_almacen:'BTIE045', nombre_almacen:'TIENDA TBC PATIO OUTLET TEMUCO',      sku_padre:'290012045', sku_hijo:'29001204561094', descripcion:'MUÑECA BARBIE FASHIONISTA #198 RUBIA VESTIDO ROSA',        licencia:'MATTEL',      en_stock:1,  en_transito:12,  temporada:'Q126',  clase:'MUÑECAS Y PELUCHES' },
+  { id:'m24', codigo_almacen:'BTIE045', nombre_almacen:'TIENDA TBC PATIO OUTLET TEMUCO',      sku_padre:'217010060', sku_hijo:'21701006061094', descripcion:'POLERON CON CAPUCHA NIÑO AVENGERS GRIS',                  licencia:'MARVEL',      en_stock:20, en_transito:0,   temporada:'Q226',  clase:'POLERON' },
+  { id:'m25', codigo_almacen:'BTIE045', nombre_almacen:'TIENDA TBC PATIO OUTLET TEMUCO',      sku_padre:'280015600', sku_hijo:'28001560061094', descripcion:'LEGO CLASSIC MEDIUM CREATIVE BRICK BOX 484 PCS',          licencia:'LEGO',        en_stock:1051,en_transito:200, temporada:'TT25',  clase:'JUGUETES DIDACTICOS' },
 ];
 
 let data = [...MOCK_DATA];
@@ -494,15 +519,16 @@ async function logout() {
 function transformStockRow(row, i) {
   return {
     id:             i,
-    codigo_almacen: row['Codigo Almacen'],
-    nombre_almacen: row['Nombre Almacen'],
-    sku_padre:      String(row['SKU Padre'] ?? ''),
-    sku_hijo:       String(row['SKU Hijo']  ?? ''),
-    descripcion:    row['Descripcion'],
-    en_stock:       Number(row['En Stock'])    || 0,
-    en_transito:    Number(row['En Transito']) || 0,
-    temporada:      row['Temporada'],
-    clase:          row['Clase'],
+    codigo_almacen: row['Codigo Almacen'] || row.codigo_almacen || '',
+    nombre_almacen: row['Nombre Almacen'] || row.nombre_almacen || '',
+    sku_padre:      String(row['SKU Padre']  ?? row.sku_padre  ?? ''),
+    sku_hijo:       String(row['SKU Hijo']   ?? row.sku_hijo   ?? ''),
+    descripcion:    row['Descripcion']    || row.descripcion    || '',
+    licencia:       row['Licencia']       || row.licencia       || '',
+    en_stock:       Number(row['Stock BTIE'] ?? row['En Stock']    ?? row.en_stock    ?? 0),
+    en_transito:    Number(row['Stock BTRT'] ?? row['En Transito'] ?? row.en_transito ?? 0),
+    temporada:      row['Temporada Comercial'] || row['Temporada'] || row.temporada || '',
+    clase:          row['Clase'] || row.clase || '',
   };
 }
 
@@ -664,7 +690,7 @@ async function fetchBatch(almacen, clase, temporada, offset, limit) {
     .eq('Codigo Almacen', almacen)
     .range(offset, offset + limit - 1);
   if (clase)     query = query.eq('Clase', clase);
-  if (temporada) query = query.eq('Temporada', temporada);
+  if (temporada) query = query.eq('Temporada Comercial', temporada);
   try {
     const res = await withTimeout(query, 12000);
     return { rows: res.data, error: res.error };
@@ -690,6 +716,10 @@ function getTemporadas() {
   return [...new Set(data.map(r => r.temporada).filter(Boolean))].sort();
 }
 
+function getLicencias() {
+  return [...new Set(data.map(r => r.licencia).filter(Boolean))].sort();
+}
+
 function stockClass(v) {
   const n = Number(v);
   if (n >= 10) return 'stock-high';
@@ -707,6 +737,7 @@ function rowMatchesFilters(row) {
   const fc       = document.getElementById('filterClase').value;
   const ft       = document.getElementById('filterTemporada').value;
   const fp       = document.getElementById('filterPeriodo').value;
+  const fl       = document.getElementById('filterLicencia').value;
   const sb2      = document.getElementById('searchBox').value.toLowerCase().trim();
   if (ftipo && !(row.codigo_almacen || '').startsWith(ftipo)) return false;
   if (fa    && row.codigo_almacen !== fa) return false;
@@ -714,6 +745,7 @@ function rowMatchesFilters(row) {
   if (ft    && row.temporada !== ft) return false;
   if (fp === 'actual'   && !esTemporadaActual(row.temporada)) return false;
   if (fp === 'anterior' &&  esTemporadaActual(row.temporada)) return false;
+  if (fl    && row.licencia !== fl) return false;
   if (sb2) {
     const joined = [row.codigo_almacen, row.nombre_almacen, row.sku_padre,
       row.sku_hijo, row.descripcion, row.temporada, row.clase]
@@ -809,14 +841,15 @@ function renderFlat() {
             ${mkTh('sku_padre','SKU PADRE')}
             ${mkTh('sku_hijo','SKU HIJO')}
             ${mkTh('descripcion','DESCRIPCIÓN','style="min-width:220px;text-align:left"')}
-            ${mkTh('en_stock','EN STOCK')}
-            ${mkTh('en_transito','EN TRÁNSITO')}
-            ${mkTh('temporada','TEMPORADA')}
+            ${mkTh('licencia','LICENCIA')}
+            ${mkTh('en_stock','STOCK BTIE')}
+            ${mkTh('en_transito','STOCK BTRT')}
+            ${mkTh('temporada','TEMPORADA COMERCIAL')}
             ${mkTh('clase','CLASE')}
           </tr></thead>
           <tbody>${paged.map(r => renderRow(r, !fAlm)).join('')}</tbody>
           <tfoot><tr class="totals-row">
-            <td colspan="${fAlm ? 3 : 4}" style="text-align:right;padding-right:12px;">${footLbl}</td>
+            <td colspan="${fAlm ? 4 : 5}" style="text-align:right;padding-right:12px;">${footLbl}</td>
             <td class="num">${totalStock.toLocaleString('es-CL')}</td>
             <td class="num">${totalTrans.toLocaleString('es-CL')}</td>
             <td colspan="2"></td>
@@ -886,9 +919,11 @@ function updateSelects() {
   const almSel  = document.getElementById('filterAlmacen');
   const claSel  = document.getElementById('filterClase');
   const tempSel = document.getElementById('filterTemporada');
+  const licSel  = document.getElementById('filterLicencia');
   const curAlm  = almSel.value;
   const curCla  = claSel.value;
   const curTemp = tempSel.value;
+  const curLic  = licSel.value;
 
   almSel.innerHTML = '<option value="">— Todos —</option>';
   getAlmacenes().forEach(([cod, nom]) => {
@@ -912,6 +947,14 @@ function updateSelects() {
     o.value = t; o.textContent = t;
     if (t === curTemp) o.selected = true;
     tempSel.appendChild(o);
+  });
+
+  licSel.innerHTML = '<option value="">— Todas —</option>';
+  getLicencias().forEach(l => {
+    const o = document.createElement('option');
+    o.value = l; o.textContent = l;
+    if (l === curLic) o.selected = true;
+    licSel.appendChild(o);
   });
 }
 
@@ -953,6 +996,7 @@ function renderRow(row, showAlm = false) {
     <td class="num">${row.sku_padre || ''}</td>
     <td class="num">${row.sku_hijo  || ''}</td>
     <td class="txt" style="min-width:220px;max-width:380px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:left;" title="${descEsc}">${row.descripcion || ''}</td>
+    <td style="font-size:11px;white-space:nowrap;">${row.licencia || ''}</td>
     <td class="num ${stockClass(row.en_stock)}" style="font-weight:800;">${row.en_stock ?? 0}</td>
     <td class="num ${transitoCls}" style="font-weight:800;">${transito > 0 ? transito : '—'}</td>
     ${tempCell}
@@ -1000,6 +1044,7 @@ function clearFilters() {
   document.getElementById('filterClase').value    = '';
   document.getElementById('filterTemporada').value = '';
   document.getElementById('filterPeriodo').value   = '';
+  document.getElementById('filterLicencia').value  = '';
   document.getElementById('searchBox').value       = '';
   applyFilters();
 }
@@ -1012,17 +1057,18 @@ function exportCSV() {
   const visible = data.filter(rowMatchesFilters);
   if (!visible.length) { showToast('Sin datos para exportar', 'err'); return; }
 
-  // Armar filas como objetos con los nombres de columna exactos
+  // Armar filas como objetos con los nombres de columna exactos (formato SAP)
   const wsData = visible.map(r => ({
-    'Codigo Almacen':  r.codigo_almacen,
-    'Nombre Almacen':  r.nombre_almacen,
-    'SKU Padre':       r.sku_padre,
-    'SKU Hijo':        r.sku_hijo,
-    'Descripcion':     r.descripcion,
-    'En Stock':        r.en_stock,
-    'En Transito':     r.en_transito,
-    'Temporada':       r.temporada,
-    'Clase':           r.clase,
+    'Codigo Almacen':      r.codigo_almacen,
+    'Nombre Almacen':      r.nombre_almacen,
+    'SKU Padre':           r.sku_padre,
+    'SKU Hijo':            r.sku_hijo,
+    'Descripcion':         r.descripcion,
+    'Licencia':            r.licencia,
+    'Stock BTIE':          r.en_stock,
+    'Stock BTRT':          r.en_transito,
+    'Temporada Comercial': r.temporada,
+    'Clase':               r.clase,
   }));
 
   const wb = XLSX.utils.book_new();
@@ -1031,12 +1077,77 @@ function exportCSV() {
   // Anchos de columna
   ws['!cols'] = [
     { wch: 14 }, { wch: 36 }, { wch: 14 }, { wch: 16 },
-    { wch: 48 }, { wch: 10 }, { wch: 12 }, { wch: 10 }, { wch: 32 },
+    { wch: 48 }, { wch: 14 }, { wch: 10 }, { wch: 12 }, { wch: 18 }, { wch: 32 },
   ];
 
   XLSX.utils.book_append_sheet(wb, ws, 'Stock');
   XLSX.writeFile(wb, `STOCK_${almacen}_${new Date().toISOString().slice(0,10)}.xlsx`);
   showToast(`${visible.length.toLocaleString('es-CL')} filas exportadas`);
+}
+
+// ═══════════════════════════════════════════════
+//  IMPORT CSV
+// ═══════════════════════════════════════════════
+function openImportModal() {
+  document.getElementById('importModal').style.display = 'flex';
+  document.getElementById('importPreview').textContent = '';
+  document.getElementById('importFile').value = '';
+  document.getElementById('btnDoImport').disabled = true;
+}
+function closeImportModal() {
+  document.getElementById('importModal').style.display = 'none';
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('importFile').addEventListener('change', function() {
+    const file = this.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      const lines = e.target.result.split(/\r?\n/).filter(l => l.trim());
+      document.getElementById('importPreview').textContent =
+        `${lines.length - 1} filas detectadas (excluye encabezado)`;
+      document.getElementById('btnDoImport').disabled = lines.length < 2;
+    };
+    reader.readAsText(file, 'UTF-8');
+  });
+}, { once: true });
+
+async function doImport() {
+  const file = document.getElementById('importFile').files[0];
+  if (!file) return;
+
+  const btn = document.getElementById('btnDoImport');
+  btn.disabled = true;
+  btn.textContent = 'Procesando...';
+
+  const text = await file.text();
+  const lines = text.split(/\r?\n/).filter(l => l.trim());
+  if (lines.length < 2) { showToast('Archivo vacío o sin datos', 'err'); btn.disabled = false; btn.textContent = 'Importar'; return; }
+
+  // Detect separator (semicolon or comma)
+  const sep = lines[0].includes(';') ? ';' : ',';
+  const headers = lines[0].split(sep).map(h => h.trim().replace(/^"|"$/g, ''));
+
+  const rows = [];
+  for (let i = 1; i < lines.length; i++) {
+    const vals = lines[i].split(sep).map(v => v.trim().replace(/^"|"$/g, ''));
+    if (vals.length < 3) continue;
+    const obj = {};
+    headers.forEach((h, idx) => { obj[h] = vals[idx] ?? ''; });
+
+    rows.push(transformStockRow(obj, i));
+  }
+
+  if (!rows.length) { showToast('Sin filas válidas', 'err'); btn.disabled = false; btn.textContent = 'Importar'; return; }
+
+  // Replace in-memory data (no Supabase write — just preview mode)
+  data = rows;
+  render();
+  closeImportModal();
+  showToast(`${rows.length.toLocaleString('es-CL')} filas importadas en modo previsualización`);
+  btn.disabled = false;
+  btn.textContent = 'Importar';
 }
 
 // ═══════════════════════════════════════════════
