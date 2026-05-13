@@ -346,31 +346,34 @@ const BOLSAS_SKUS = [
   { sku: '10002266066999',  label: 'Bolsa Grande Yapack'        },
 ];
 
-// Stock crítico por tienda y SKU (fuente: tabla SAP)
-const STOCK_CRITICO = {
-  'BTIE002': { '10002265966999': 600, '10002266066999': 800 },
-  'BTIE005': { '10002265966999': 600 },
-  'BTIE006': { '10002265966999': 800, '10002266066999': 800 },
-  'BTIE007': { '10002265966999': 800, '10002266066999': 800 },
-  'BTIE009': { '10002265966999': 600, '10002266066999': 800 },
-  'BTIE019': { '10002265966999': 600, '10002266066999': 800 },
-  'BTIE041': { '10002265966999': 400, '10002266066999': 400 },
-  'BTIE044': { '10002265966999': 400 },
-  'BTIE045': { '10002265966999': 400, '10002266066999': 400 },
-  'BTIE053': { '10002265966999': 800, '10002266066999': 800 },
-  'BTIE054': { '10002265966999': 600, '10002266066999': 800 },
-  'BTIE055': { '10002265966999': 400, '10002266066999': 400 },
-  'BTIE057': { '10002265966999': 400, '10002266066999': 400 },
-  'BTIE062': { '10002265966999': 600, '10002266066999': 800 },
-  'BTIE063': { '10002265966999': 600 },
-  'BTRT002': { '10002266066999': 800 },
-  'BTRT055': { '10002266066999': 400 },
-  'BTRT063': { '10002266066999': 400 },
+// Umbrales Yapack por tienda — total (pequeña + grande) — fuente: tabla SAP capacidades
+// optima = mínimo deseado (crítico si bajo), maxima = stock objetivo (precaución si aún no llega)
+const CAP_YAPACK = {
+  'BTIE019': { optima: 18000, maxima: 20000 },
+  'BTIE007': { optima: 16000, maxima: 28000 },
+  'BTIE006': { optima: 13000, maxima: 15000 },
+  'BTIE045': { optima:  8000, maxima:  9000 },
+  'BTIE041': { optima:  8000, maxima:  9000 },
+  'BTIE055': { optima:  7000, maxima: 10000 },
+  'BTIE053': { optima:  9000, maxima: 11000 },
+  'BTIE009': { optima:  9000, maxima: 10000 },
+  'BTIE002': { optima:  9000, maxima: 10000 },
+  'BTIE057': { optima:  9000, maxima: 10000 },
+  'BTIE054': { optima:  7000, maxima: 10000 },
+  'BTIE044': { optima:  5500, maxima:  6500 },
+  'BTIE005': { optima:  8000, maxima: 10000 },
+  'BTIE063': { optima:  7000, maxima:  8500 },
+  'BTIE056': { optima:  3500, maxima:  3500 },
+  'BTIE059': { optima:  2500, maxima:  2500 },
+  'BTIE058': { optima:  2500, maxima:  2500 },
+  'BTIE062': { optima:  7000, maxima:  8500 },
 };
 
-function getCritico(cod, sku) {
-  return STOCK_CRITICO[cod]?.[sku] ?? null;
-}
+// Unidades por caja/bulto
+const BULTOS = {
+  '10002265966999': 400, // Pequeña Yapack
+  '10002266066999': 200, // Grande Yapack
+};
 
 // Datos transformados: Map<codigo_almacen, { nombre, skuStocks: { sku: n } }>
 let storeMap = {};
@@ -554,28 +557,33 @@ async function testConnection() {
 }
 
 // ── THRESHOLDS ──
-function stockClass(n, cod, sku) {
-  const critico = getCritico(cod, sku);
-  if (n === 0)                        return 's-zero';
-  if (critico !== null && n <= critico) return 's-low';
-  if (critico !== null && n <= critico * 1.5) return 's-warn';
+
+// Nivel de alerta por tienda: basado en total Yapack vs CAP_OPTIMA / CAP_MAXIMA
+function alertLevel(storeEntry, cod) {
+  const cap = CAP_YAPACK[cod];
+  if (!cap) return 'ok'; // tiendas sin umbral definido (ej. BTRT)
+  const total = YAPACK_SKUS.reduce((s, sku) => s + (storeEntry.skuStocks[sku] ?? 0), 0);
+  if (total === 0 || total < cap.optima)  return 'critico';
+  if (total < cap.maxima)                 return 'precaucion';
+  return 'ok';
+}
+
+// Color de celda Yapack: basado en cajas (bultos)
+function yapackCellClass(n, sku) {
+  if (n === 0) return 's-zero';
+  const bxSize = BULTOS[sku] || 1;
+  const cajas  = n / bxSize;
+  if (cajas < 1) return 's-low';
+  if (cajas < 2) return 's-warn';
   return 's-ok';
 }
 
-function alertLevel(storeEntry, cod) {
-  const skusConCritico = BOLSAS_SKUS.filter(b => getCritico(cod, b.sku) !== null);
-  if (skusConCritico.length === 0) return 'ok';
-  for (const b of skusConCritico) {
-    const n = storeEntry.skuStocks[b.sku] ?? 0;
-    const c = getCritico(cod, b.sku);
-    if (n === 0 || n <= c)    return 'critico';
-  }
-  for (const b of skusConCritico) {
-    const n = storeEntry.skuStocks[b.sku] ?? 0;
-    const c = getCritico(cod, b.sku);
-    if (n <= c * 1.5) return 'precaucion';
-  }
-  return 'ok';
+// Texto auxiliar de cajas
+function cajasLabel(n, sku) {
+  const bxSize = BULTOS[sku];
+  if (!bxSize) return '';
+  const c = n / bxSize;
+  return (Number.isInteger(c) ? c : c.toFixed(1)) + ' caj.';
 }
 
 // ── FILTERS ──
@@ -720,21 +728,27 @@ function renderTable() {
       const n = s.skuStocks[b.sku] ?? 0;
       const esKraft = KRAFT_SKUS.includes(b.sku);
       if (esKraft) {
-        // Kraft Blanco en liquidación — sin semáforo, solo gris
         return `<td class="num" style="background:#f4f4f4;color:#999;" title="En liquidación — sin reposición">${n.toLocaleString('es-CL')}</td>`;
       }
-      const c = getCritico(cod, b.sku);
-      const cls = stockClass(n, cod, b.sku);
-      const title = c !== null ? `title="Crítico: ${c.toLocaleString('es-CL')}"` : '';
-      return `<td class="num ${cls}" ${title}>${n.toLocaleString('es-CL')}</td>`;
+      // Yapack: semáforo por cajas, muestra "X caj." debajo
+      const cls  = yapackCellClass(n, b.sku);
+      const caj  = cajasLabel(n, b.sku);
+      const cap  = CAP_YAPACK[cod];
+      const hint = cap ? `title="Cap. óptima: ${cap.optima.toLocaleString('es-CL')} | máxima: ${cap.maxima.toLocaleString('es-CL')}"` : '';
+      return `<td class="num ${cls}" ${hint}>${n.toLocaleString('es-CL')}${caj ? `<div style="font-size:9px;opacity:.65;margin-top:1px;">${caj}</div>` : ''}</td>`;
     }).join('');
 
     const allStocks = BOLSAS_SKUS.map(b => s.skuStocks[b.sku] ?? 0);
     const total = allStocks.reduce((a, v) => a + v, 0);
-    const lv = alertLevel(s, cod);
-    const badge = lv === 'critico'    ? '<span style="background:#fadbd8;color:#922b21;border:1px solid #e74c3c;border-radius:10px;padding:1px 8px;font-size:10px;font-weight:700;">CRÍTICO</span>'
-                : lv === 'precaucion' ? '<span style="background:#fef9e7;color:#7d6608;border:1px solid #ffe082;border-radius:10px;padding:1px 8px;font-size:10px;font-weight:700;">PRECAUCIÓN</span>'
-                : '<span style="background:#d5f5e3;color:#1e8449;border:1px solid #27ae60;border-radius:10px;padding:1px 8px;font-size:10px;font-weight:700;">OK</span>';
+    const totalYapack = YAPACK_SKUS.reduce((sum, sku) => sum + (s.skuStocks[sku] ?? 0), 0);
+    const cap  = CAP_YAPACK[cod];
+    const lv   = alertLevel(s, cod);
+    const capHint = cap
+      ? ` title="Total Yapack: ${totalYapack.toLocaleString('es-CL')} | Óptima: ${cap.optima.toLocaleString('es-CL')} | Máxima: ${cap.maxima.toLocaleString('es-CL')}"`
+      : '';
+    const badge = lv === 'critico'    ? `<span style="background:#fadbd8;color:#922b21;border:1px solid #e74c3c;border-radius:10px;padding:1px 8px;font-size:10px;font-weight:700;"${capHint}>CRÍTICO</span>`
+                : lv === 'precaucion' ? `<span style="background:#fef9e7;color:#7d6608;border:1px solid #ffe082;border-radius:10px;padding:1px 8px;font-size:10px;font-weight:700;"${capHint}>PRECAUCIÓN</span>`
+                : `<span style="background:#d5f5e3;color:#1e8449;border:1px solid #27ae60;border-radius:10px;padding:1px 8px;font-size:10px;font-weight:700;"${capHint}>OK</span>`;
 
     return `<tr>
       <td style="font-weight:700;color:#0077BB;white-space:nowrap;">${cod}</td>
