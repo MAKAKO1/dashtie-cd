@@ -185,11 +185,15 @@
   td.txt { text-align: left; }
   td.num { text-align: right; font-variant-numeric: tabular-nums; font-weight: 700; min-width: 56px; }
 
-  /* Stock semáforo */
-  td.s-ok   { background: #d5f5e3; color: #1e8449; font-weight: 800; }
-  td.s-warn { background: #fef9e7; color: #7d6608; font-weight: 800; }
-  td.s-low  { background: #fadbd8; color: #922b21; font-weight: 800; }
-  td.s-zero { background: #922b21; color: white;   font-weight: 800; }
+  /* Stock semáforo — fondo sutil, texto fuerte */
+  td.s-ok   { background: rgba(39,174,96,0.08);  color: #1a7a3c; font-weight: 800; }
+  td.s-warn { background: rgba(243,156,18,0.10); color: #c27800; font-weight: 800; }
+  td.s-low  { background: rgba(231,76,60,0.09);  color: #c0392b; font-weight: 800; }
+  td.s-zero { background: rgba(192,57,43,0.16);  color: #922b21; font-weight: 800; }
+  /* Semáforo capacidad Yapack total */
+  td.cap-ok        { background: rgba(39,174,96,0.10);  color: #1a7a3c; font-weight: 800; }
+  td.cap-precaucion{ background: rgba(243,156,18,0.12); color: #c27800; font-weight: 800; }
+  td.cap-critico   { background: rgba(231,76,60,0.12);  color: #c0392b; font-weight: 800; }
 
   tr.totals-row td {
     background: #0088CC; color: white; font-weight: 800;
@@ -698,26 +702,8 @@ function renderTable() {
 
   document.getElementById('resultCount').textContent = `${rows.length} tienda${rows.length !== 1 ? 's' : ''}`;
 
-  // Alert banner — tiendas sin stock
-  const sinStock = rows.filter(([, s]) => {
-    const stocks = BOLSAS_SKUS.map(b => s.skuStocks[b.sku] ?? 0);
-    return Math.min(...stocks) === 0;
-  });
-
-  let bannerHtml = '';
-  if (sinStock.length > 0) {
-    const items = sinStock.map(([cod, s]) => {
-      const ceros = BOLSAS_SKUS.filter(b => (s.skuStocks[b.sku] ?? 0) === 0).map(b => b.label).join(', ');
-      return `<li><strong>${cod}</strong> — ${s.nombre}: sin stock de ${ceros}</li>`;
-    }).join('');
-    bannerHtml = `<div class="alert-banner">
-      <strong>&#9888; ${sinStock.length} tienda${sinStock.length !== 1 ? 's' : ''} sin stock de bolsas</strong>
-      <ul>${items}</ul>
-    </div>`;
-  }
-
   if (!rows.length) {
-    content.innerHTML = bannerHtml + `<div style="padding:40px;text-align:center;color:#aaa;font-style:italic;">No hay tiendas con los filtros seleccionados.</div>`;
+    content.innerHTML = `<div style="padding:40px;text-align:center;color:#aaa;font-style:italic;">No hay tiendas con los filtros seleccionados.</div>`;
     return;
   }
 
@@ -761,27 +747,32 @@ function renderTable() {
     }).join('');
 
     const allStocks = BOLSAS_SKUS.map(b => s.skuStocks[b.sku] ?? 0);
-    const total = allStocks.reduce((a, v) => a + v, 0);
+    const total      = allStocks.reduce((a, v) => a + v, 0);
     const totalYapack = YAPACK_SKUS.reduce((sum, sku) => sum + (s.skuStocks[sku] ?? 0), 0);
-    const cap  = CAP_YAPACK[cod];
-    const lv   = alertLevel(s, cod);
-    const capHint = cap
-      ? ` title="Total Yapack: ${totalYapack.toLocaleString('es-CL')} | Óptima: ${cap.optima.toLocaleString('es-CL')} | Máxima: ${cap.maxima.toLocaleString('es-CL')}"`
-      : '';
-    const badge = lv === 'critico'    ? `<span style="background:#fadbd8;color:#922b21;border:1px solid #e74c3c;border-radius:10px;padding:1px 8px;font-size:10px;font-weight:700;"${capHint}>CRÍTICO</span>`
-                : lv === 'precaucion' ? `<span style="background:#fef9e7;color:#7d6608;border:1px solid #ffe082;border-radius:10px;padding:1px 8px;font-size:10px;font-weight:700;"${capHint}>PRECAUCIÓN</span>`
-                : `<span style="background:#d5f5e3;color:#1e8449;border:1px solid #27ae60;border-radius:10px;padding:1px 8px;font-size:10px;font-weight:700;"${capHint}>OK</span>`;
+    const cap = CAP_YAPACK[cod];
+    const lv  = alertLevel(s, cod);
+    const capCls = lv === 'critico' ? 'cap-critico' : lv === 'precaucion' ? 'cap-precaucion' : 'cap-ok';
+
+    const yapackCell  = `<td class="num ${capCls}" title="Total Yapack vs umbral">${totalYapack.toLocaleString('es-CL')}</td>`;
+    const optimaCell  = cap
+      ? `<td class="num" style="color:#555;">${cap.optima.toLocaleString('es-CL')}</td>`
+      : `<td class="num" style="color:#bbb;">—</td>`;
+    const maximaCell  = cap
+      ? `<td class="num" style="color:#555;">${cap.maxima.toLocaleString('es-CL')}</td>`
+      : `<td class="num" style="color:#bbb;">—</td>`;
 
     return `<tr>
       <td style="font-weight:700;color:#0077BB;white-space:nowrap;">${cod}</td>
       <td class="txt" style="min-width:240px;">${s.nombre}</td>
       ${skuCells}
       <td class="num" style="font-weight:800;">${total.toLocaleString('es-CL')}</td>
-      <td style="text-align:center;">${badge}</td>
+      ${yapackCell}
+      ${optimaCell}
+      ${maximaCell}
     </tr>`;
   }).join('');
 
-  content.innerHTML = bannerHtml + `
+  content.innerHTML = `
     <div class="table-card">
       <div class="table-wrap">
         <table>
@@ -790,14 +781,16 @@ function renderTable() {
             <th style="text-align:left;min-width:240px;">NOMBRE TIENDA</th>
             ${skuHeaders}
             <th>TOTAL</th>
-            <th>ESTADO</th>
+            <th title="Total bolsas Yapack — semáforo vs umbrales">YAPACK TOTAL</th>
+            <th title="Stock mínimo deseado de Yapack">CAP ÓPTIMA</th>
+            <th title="Stock máximo ideal de Yapack">CAP MÁXIMA</th>
           </tr></thead>
           <tbody>${bodyRows}</tbody>
           <tfoot><tr class="totals-row">
             <td colspan="2" style="text-align:right;padding-right:12px;">TOTALES</td>
             ${skuTotals}
             <td class="num">${visibleSkus.reduce((a, b) => a + tots[b.sku], 0).toLocaleString('es-CL')}</td>
-            <td></td>
+            <td colspan="3"></td>
           </tr></tfoot>
         </table>
       </div>
