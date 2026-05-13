@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Stock x Tienda — The Brands Club</title>
-
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@800;900&display=swap" rel="stylesheet">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -17,7 +17,7 @@
 
   /* ── HEADER ── */
   .header {
-    background: linear-gradient(135deg, #00AAFF 0%, #0090DD 100%);
+    background: #42B0F0;
     color: white;
     padding: 14px 24px;
     display: flex;
@@ -25,17 +25,38 @@
     justify-content: space-between;
     box-shadow: 0 3px 12px rgba(0,150,255,.35);
     position: sticky; top: 0; z-index: 100;
+    overflow: hidden;
+  }
+  .header > * { position: relative; z-index: 1; }
+  .header::before {
+    content: 'brands';
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -115%);
+    font-family: 'Fredoka One', Arial;
+    font-size: 200px; color: rgba(255,255,255,.14);
+    pointer-events: none; white-space: nowrap;
+    user-select: none; letter-spacing: 8px; line-height: 1;
+  }
+  .header::after {
+    content: 'club';
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, 15%);
+    font-family: 'Fredoka One', Arial;
+    font-size: 200px; color: rgba(255,255,255,.14);
+    pointer-events: none; white-space: nowrap;
+    user-select: none; letter-spacing: 8px; line-height: 1;
   }
   .header-left { display: flex; align-items: center; gap: 14px; }
   .header-center {
     flex: 1;
     text-align: center;
-    font-family: 'Fredoka One', Arial;
-    font-size: 26px;
-    letter-spacing: 1px;
-    color: rgba(255,255,255,.95);
+    font-family: 'Nunito', 'Fredoka One', Arial;
+    font-size: 42px;
+    font-weight: 900;
+    letter-spacing: 0px;
+    color: white;
     white-space: nowrap;
-    text-shadow: 0 1px 4px rgba(0,0,0,.15);
+    text-shadow: 0 2px 8px rgba(0,0,0,.15);
   }
 
   .logo-tbc {
@@ -321,7 +342,7 @@
       <div class="header-date" id="headerDate"></div>
     </div>
   </div>
-  <div class="header-center">La Magia De Ser Tu</div>
+  <div class="header-center">La magia de ser tú</div>
   <div class="header-actions">
     <span class="user-badge" id="userBadge">Vista previa</span>
     <button class="btn btn-success" onclick="exportCSV()">&#11015; Exportar Excel</button>
