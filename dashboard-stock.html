@@ -860,7 +860,7 @@ function renderOverview(content) {
         <table>
           <thead><tr>
             <th>ALMACÉN</th><th style="text-align:left">NOMBRE</th>
-            <th>SKUs ÚNICOS</th><th>EN STOCK</th><th>EN TRÁNSITO</th>
+            <th>SKU PADRE</th><th>EN STOCK</th><th>EN TRÁNSITO</th>
           </tr></thead>
           <tbody>${bodyRows}</tbody>
         </table>
@@ -916,7 +916,7 @@ function updateKPIs() {
     <div class="kpi info"><div class="kpi-val">${alm}</div><div class="kpi-lbl">Almacenes</div></div>
     <div class="kpi ok"><div class="kpi-val">${totalStock.toLocaleString('es-CL')}</div><div class="kpi-lbl">Unidades en Stock</div></div>
     <div class="kpi" style="border-color:#99D4F5;"><div class="kpi-val" style="color:#0090DD;">${totalTransito.toLocaleString('es-CL')}</div><div class="kpi-lbl">En Tránsito</div></div>
-    <div class="kpi"><div class="kpi-val">${skus.toLocaleString('es-CL')}</div><div class="kpi-lbl">SKUs Únicos</div></div>
+    <div class="kpi"><div class="kpi-val">${skus.toLocaleString('es-CL')}</div><div class="kpi-lbl">SKU Padre</div></div>
     <div class="kpi"><div class="kpi-val">${clases}</div><div class="kpi-lbl">Clases</div></div>
     <div class="kpi warn"><div class="kpi-val">${criticos}</div><div class="kpi-lbl">Stock = 1 (crítico)</div></div>
   `;
