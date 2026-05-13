@@ -738,12 +738,14 @@ function renderTable() {
       if (esKraft) {
         return `<td class="num" style="background:#f4f4f4;color:#999;" title="En liquidación — sin reposición">${n.toLocaleString('es-CL')}</td>`;
       }
-      // Yapack: semáforo por cajas, muestra "X caj." debajo
+      // Yapack: fondo semáforo, texto negro, caj. arriba derecha, óptima abajo izquierda
       const cls  = yapackCellClass(n, b.sku);
       const caj  = cajasLabel(n, b.sku);
       const cap  = CAP_YAPACK[cod];
       const hint = cap ? `title="Cap. óptima: ${cap.optima.toLocaleString('es-CL')} | máxima: ${cap.maxima.toLocaleString('es-CL')}"` : '';
-      return `<td class="num ${cls}" ${hint}>${n.toLocaleString('es-CL')}${caj ? `<div style="font-size:9px;opacity:.65;margin-top:1px;">${caj}</div>` : ''}</td>`;
+      const optTag = cap ? `<span style="position:absolute;bottom:2px;left:4px;font-size:8px;color:#555;font-weight:400;opacity:.8;">ópt ${cap.optima.toLocaleString('es-CL')}</span>` : '';
+      const cajTag = caj ? `<span style="position:absolute;top:2px;right:4px;font-size:8px;color:#555;opacity:.7;">${caj}</span>` : '';
+      return `<td class="num ${cls}" ${hint} style="position:relative;color:#111;padding:14px 8px 10px;">${cajTag}${n.toLocaleString('es-CL')}${optTag}</td>`;
     }).join('');
 
     const allStocks = BOLSAS_SKUS.map(b => s.skuStocks[b.sku] ?? 0);
@@ -753,7 +755,7 @@ function renderTable() {
     const lv  = alertLevel(s, cod);
     const capCls = lv === 'critico' ? 'cap-critico' : lv === 'precaucion' ? 'cap-precaucion' : 'cap-ok';
 
-    const yapackCell  = `<td class="num ${capCls}" title="Total Yapack vs umbral">${totalYapack.toLocaleString('es-CL')}</td>`;
+    const yapackCell  = `<td class="num ${capCls}" title="Total Yapack vs umbral" style="color:#111;font-weight:800;">${totalYapack.toLocaleString('es-CL')}</td>`;
     const optimaCell  = cap
       ? `<td class="num" style="color:#555;">${cap.optima.toLocaleString('es-CL')}</td>`
       : `<td class="num" style="color:#bbb;">—</td>`;
