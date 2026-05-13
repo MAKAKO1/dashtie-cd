@@ -28,16 +28,6 @@
   }
   .header-left { display: flex; align-items: center; gap: 14px; }
 
-  .header-center {
-    flex: 1;
-    text-align: center;
-    font-family: 'Fredoka One', Arial;
-    font-size: 18px;
-    letter-spacing: 0.5px;
-    color: rgba(255,255,255,.95);
-    white-space: nowrap;
-  }
-
   .logo-tbc {
     background: white;
     border-radius: 10px;
@@ -45,14 +35,10 @@
     text-align: center;
     line-height: 1.05;
     box-shadow: 0 2px 6px rgba(0,0,0,.15);
-    min-width: 86px;
   }
-  .logo-tbc img {
-    max-height: 44px;
-    display: block;
-    margin: 0 auto;
-  }
-  .logo-tbc .l-logo { display: block; font-family: 'Fredoka One', Arial; font-size: 15px; color: #00AAFF; }
+  .logo-tbc .l-the    { display: block; font-family: 'Fredoka One', Arial; font-size: 9px;  color: #00AAFF; letter-spacing: .5px; }
+  .logo-tbc .l-brands { display: block; font-family: 'Fredoka One', Arial; font-size: 15px; color: #00AAFF; }
+  .logo-tbc .l-club   { display: block; font-family: 'Fredoka One', Arial; font-size: 18px; color: #00AAFF; letter-spacing: 1px; }
 
   .header-title { font-family: 'Fredoka One', Arial; font-size: 20px; letter-spacing: .5px; }
   .header-date  { font-size: 11px; opacity: .85; margin-top: 1px; }
@@ -314,15 +300,15 @@
 <div class="header">
   <div class="header-left">
     <div class="logo-tbc">
-      <img src="logo.png" alt="La Magia De Ser Tu" onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
-      <span class="l-logo" style="display:none;">La Magia De Ser Tu</span>
+      <span class="l-the">The</span>
+      <span class="l-brands">Brands</span>
+      <span class="l-club">CLUB</span>
     </div>
     <div>
       <div class="header-title">Stock x Tienda</div>
       <div class="header-date" id="headerDate"></div>
     </div>
   </div>
-  <div class="header-center">La Magia De Ser Tu</div>
   <div class="header-actions">
     <span class="user-badge" id="userBadge">Vista previa</span>
     <button class="btn btn-success" onclick="exportCSV()">&#11015; Exportar Excel</button>
@@ -409,30 +395,6 @@
 const sb       = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 const sbBronze = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, { db: { schema: 'bronze_layer' }, auth: { storageKey: 'tbc-bronze-auth', persistSession: false, autoRefreshToken: false } });
 let currentUser = null;
-
-// ═══════════════════════════════════════════════
-//  CAPACIDADES TIENDAS (agregar datos aquí)
-// ═══════════════════════════════════════════════
-const capacidadesTiendas = {
-  'BTIE019': { min: 18000, max: 20000 },
-  'BTIE007': { min: 16000, max: 28000 },
-  'BTIE006': { min: 13000, max: 15000 },
-  'BTIE045': { min: 8000,  max: 9000 },
-  'BTIE041': { min: 8000,  max: 9000 },
-  'BTIE055': { min: 7000,  max: 10000 },
-  'BTIE053': { min: 9000,  max: 11000 },
-  'BTIE009': { min: 9000,  max: 10000 },
-  'BTIE002': { min: 9000,  max: 10000 },
-  'BTIE057': { min: 9000,  max: 10000 },
-  'BTIE054': { min: 7000,  max: 10000 },
-  'BTIE044': { min: 5500,  max: 6500 },
-  'BTIE005': { min: 8000,  max: 10000 },
-  'BTIE063': { min: 7000,  max: 8500 },
-  'BTIE056': { min: 3500,  max: 3500 },
-  'BTIE059': { min: 2500,  max: 2500 },
-  'BTIE058': { min: 2500,  max: 2500 },
-  'BTIE062': { min: 7000,  max: 8500 },
-};
 
 // ═══════════════════════════════════════════════
 //  COLUMN DEFINITIONS
@@ -866,22 +828,13 @@ function renderOverview(content) {
     const g          = grupos[alm];
     const totalStock = g.rows.reduce((a, r) => a + (Number(r.en_stock)    || 0), 0);
     const totalTrans = g.rows.reduce((a, r) => a + (Number(r.en_transito) || 0), 0);
-    const skusPadres = new Set(g.rows.map(r => r.sku_padre)).size;
-    const skusHijos  = new Set(g.rows.map(r => r.sku_hijo)).size;
-    const totalUnidades = totalStock + totalTrans;
-    const capacidad = capacidadesTiendas[alm] || {};
-    const capacidadMinFmt = capacidad.min != null ? Number(capacidad.min).toLocaleString('es-CL') : '—';
-    const capacidadMaxFmt = capacidad.max != null ? Number(capacidad.max).toLocaleString('es-CL') : '—';
+    const skus       = new Set(g.rows.map(r => r.sku_padre)).size;
     bodyRows += `<tr style="cursor:pointer;" onclick="selectStore('${alm}')" title="Ver stock de ${alm}">
       <td style="font-weight:700;color:#0077BB;">${alm}</td>
       <td style="text-align:left;">${g.nombre}</td>
-      <td class="num">${skusHijos.toLocaleString('es-CL')}</td>
-      <td class="num">${skusPadres.toLocaleString('es-CL')}</td>
-      <td class="num">${totalUnidades.toLocaleString('es-CL')}</td>
+      <td class="num">${skus.toLocaleString('es-CL')}</td>
       <td class="num ${stockClass(totalStock)}" style="font-weight:800;">${totalStock.toLocaleString('es-CL')}</td>
       <td class="num ${totalTrans>0?'transito-ok':'transito-none'}" style="font-weight:800;">${totalTrans>0?totalTrans.toLocaleString('es-CL'):'—'}</td>
-      <td class="num">${capacidadMinFmt}</td>
-      <td class="num">${capacidadMaxFmt}</td>
     </tr>`;
   });
 
@@ -894,7 +847,7 @@ function renderOverview(content) {
         <table>
           <thead><tr>
             <th>ALMACÉN</th><th style="text-align:left">NOMBRE</th>
-            <th>SKUs ÚNICOS</th><th>SKUs PADRES</th><th>TOTAL UNIDADES</th><th>EN STOCK</th><th>EN TRÁNSITO</th><th>CAP. ÓPTIMA</th><th>CAP. MÁXIMA</th>
+            <th>SKUs ÚNICOS</th><th>EN STOCK</th><th>EN TRÁNSITO</th>
           </tr></thead>
           <tbody>${bodyRows}</tbody>
         </table>
