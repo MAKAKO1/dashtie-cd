@@ -1,0 +1,1211 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Recepciones — The Brands Club</title>
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: Arial, sans-serif;
+    font-size: 12px;
+    background: #EBF6FF;
+    color: #1a1a1a;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    background: linear-gradient(135deg, #00AAFF 0%, #0090DD 100%);
+    color: white;
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 3px 12px rgba(0,150,255,.35);
+    position: sticky; top: 0; z-index: 100;
+  }
+  .header-left { display: flex; align-items: center; gap: 14px; }
+
+  /* Logo TBC brand */
+  .header-center {
+    flex: 1;
+    text-align: center;
+    font-family: 'Fredoka One', Arial;
+    font-size: 18px;
+    letter-spacing: 0.5px;
+    color: rgba(255,255,255,.95);
+    white-space: nowrap;
+  }
+
+  .logo-tbc {
+    background: white;
+    border-radius: 10px;
+    padding: 5px 11px 4px;
+    text-align: center;
+    line-height: 1.05;
+    box-shadow: 0 2px 6px rgba(0,0,0,.15);
+    min-width: 86px;
+  }
+  .logo-tbc img {
+    max-height: 44px;
+    display: block;
+    margin: 0 auto;
+  }
+  .logo-tbc .l-logo { display: block; font-family: 'Fredoka One', Arial; font-size: 15px; color: #00AAFF; }
+  .logo-tbc .l-the    { display: block; font-family: 'Fredoka One', Arial; font-size: 9px;  color: #00AAFF; letter-spacing: .5px; }
+  .logo-tbc .l-brands { display: block; font-family: 'Fredoka One', Arial; font-size: 15px; color: #00AAFF; }
+  .logo-tbc .l-club   { display: block; font-family: 'Fredoka One', Arial; font-size: 18px; color: #00AAFF; letter-spacing: 1px; }
+
+  .header-title { font-family: 'Fredoka One', Arial; font-size: 20px; letter-spacing: .5px; }
+  .header-date  { font-size: 11px; opacity: .85; margin-top: 1px; }
+  .header-actions { display: flex; gap: 8px; align-items: center; }
+  .user-badge {
+    font-size: 10.5px; opacity: .9;
+    background: rgba(255,255,255,.25);
+    padding: 4px 10px; border-radius: 20px;
+  }
+
+  /* ── NAV TABS ── */
+  .nav-tabs {
+    background: #0090DD;
+    display: flex;
+    padding: 0 24px;
+    border-bottom: 3px solid #007ABB;
+  }
+  .nav-tab {
+    display: inline-block;
+    padding: 9px 20px;
+    color: rgba(255,255,255,.65);
+    text-decoration: none;
+    font-family: 'Fredoka One', Arial;
+    font-size: 13px;
+    letter-spacing: .4px;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -3px;
+    transition: color .15s, border-color .15s;
+  }
+  .nav-tab:hover { color: rgba(255,255,255,.9); }
+  .nav-tab.active { color: white; border-bottom-color: white; }
+
+  /* ── TOOLBAR ── */
+  .toolbar {
+    background: white;
+    padding: 10px 24px;
+    display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+    border-bottom: 2px solid #CCE9FF;
+    box-shadow: 0 1px 4px rgba(0,150,255,.08);
+  }
+  .toolbar label { font-weight: 700; color: #0077BB; font-size: 11px; }
+  .toolbar select, .toolbar input {
+    border: 1.5px solid #99D4F5; border-radius: 6px;
+    padding: 5px 10px; font-size: 12px; outline: none;
+    transition: border-color .2s;
+  }
+  .toolbar select:focus, .toolbar input:focus { border-color: #00AAFF; }
+
+  /* ── SUMMARY BAR ── */
+  .summary-bar {
+    display: flex; gap: 12px; flex-wrap: wrap;
+    padding: 10px 24px;
+    background: #fff;
+    border-bottom: 1px solid #CCE9FF;
+  }
+  .kpi {
+    background: #F0F9FF;
+    border: 1.5px solid #99D4F5;
+    border-radius: 10px;
+    padding: 8px 16px;
+    min-width: 130px;
+    text-align: center;
+  }
+  .kpi .kpi-val { font-family: 'Fredoka One', Arial; font-size: 22px; color: #00AAFF; }
+  .kpi .kpi-lbl { font-size: 10px; color: #666; text-transform: uppercase; letter-spacing: .5px; margin-top: 2px; }
+  .kpi.danger .kpi-val { color: #c0392b; }
+  .kpi.warn   .kpi-val { color: #e67e22; }
+  .kpi.ok     .kpi-val { color: #27ae60; }
+
+  /* ── MAIN CONTENT ── */
+  .content { padding: 16px 24px; }
+
+  /* ── STORE SECTION ── */
+  .store-section { margin-bottom: 24px; }
+  .store-header {
+    background: linear-gradient(90deg, #00AAFF, #0088CC);
+    color: white;
+    padding: 9px 16px;
+    border-radius: 10px 10px 0 0;
+    display: flex; align-items: center; justify-content: space-between;
+    cursor: pointer; user-select: none;
+    box-shadow: 0 2px 6px rgba(0,150,255,.25);
+  }
+  .store-header h2 { font-family: 'Fredoka One', Arial; font-size: 14px; letter-spacing: .5px; }
+  .store-header .store-meta { font-size: 11px; opacity: .9; display: flex; gap: 16px; }
+  .store-header .toggle-icon { font-size: 14px; transition: transform .25s; }
+  .store-section.collapsed .toggle-icon { transform: rotate(-90deg); }
+
+  .store-body { overflow: hidden; transition: max-height .3s ease; }
+  .store-section.collapsed .store-body { max-height: 0 !important; }
+
+  /* ── TABLE ── */
+  .table-wrap { overflow-x: auto; }
+  table {
+    width: 100%; border-collapse: collapse;
+    background: white;
+    font-size: 11.5px;
+  }
+  thead tr { background: #00AAFF; color: white; }
+  thead th {
+    padding: 7px 8px; text-align: center;
+    border: 1px solid #0088CC;
+    white-space: nowrap; font-weight: 700;
+    font-size: 10.5px; letter-spacing: .3px;
+  }
+  tbody tr { border-bottom: 1px solid #e8edf2; transition: background .15s; }
+  tbody tr:hover { background: #f0f5ff; }
+  tbody tr:nth-child(even) { background: #f9fbfd; }
+  tbody tr:nth-child(even):hover { background: #e8f0fe; }
+
+  td {
+    padding: 5px 8px; border: 1px solid #dde3ee;
+    vertical-align: middle; text-align: center;
+  }
+  td.editable { cursor: text; }
+  td.editable:focus { outline: 2px solid #0f3460; background: #fffde7; }
+  td.num { text-align: right; font-variant-numeric: tabular-nums; }
+
+  /* ── STATUS COLORS ── */
+  td.st-ok       { background: #d5f5e3; color: #1e8449; font-weight: 700; }
+  td.st-faltante { background: #fadbd8; color: #922b21; font-weight: 700; }
+  td.st-singuia  { background: #fef9e7; color: #7d6608; font-weight: 700; }
+  td.st-sobrante { background: #d6eaf8; color: #1a5276; font-weight: 700; }
+  td.st-revisar  { background: #fde8d8; color: #a04000; font-weight: 700; }
+
+  td.neg { color: #c0392b; font-weight: 700; }
+  td.pos { color: #1e8449; font-weight: 700; }
+
+  /* ── TOTALS ROW ── */
+  tr.totals-row td {
+    background: #0088CC; color: white; font-weight: 800;
+    font-size: 11px; border: 1px solid #006DAA;
+  }
+
+  /* ── ACTION ROW BUTTONS ── */
+  .row-actions { display: flex; gap: 4px; justify-content: center; }
+  .btn-icon {
+    background: none; border: none; cursor: pointer;
+    font-size: 14px; padding: 2px 4px; border-radius: 3px;
+    transition: background .15s;
+  }
+  .btn-icon:hover { background: rgba(0,0,0,.08); }
+
+  /* ── FOOTER BUTTONS ── */
+  .add-row-btn {
+    margin: 0;
+    background: #E5F6FF; border: 1.5px dashed #66CCFF;
+    color: #0090DD; font-weight: 700; font-size: 11px;
+    padding: 7px 16px; border-radius: 0 0 10px 10px;
+    cursor: pointer; width: 100%; text-align: center;
+    transition: background .15s;
+  }
+  .add-row-btn:hover { background: #CCE9FF; }
+
+  /* ── GENERAL BUTTONS ── */
+  .btn {
+    padding: 6px 14px; border: none; border-radius: 20px;
+    cursor: pointer; font-size: 11.5px; font-weight: 700;
+    transition: opacity .2s; letter-spacing: .3px;
+  }
+  .btn:hover { opacity: .85; }
+  .btn-primary { background: #0090DD; color: white; }
+  .btn-success { background: #27ae60; color: white; }
+  .btn-warning { background: #e67e22; color: white; }
+  .btn-danger  { background: #c0392b; color: white; }
+  .btn-light   { background: rgba(255,255,255,.25); color: white; border: 1px solid rgba(255,255,255,.4); }
+
+  /* ── MODAL ── */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,100,180,.45); z-index: 200;
+    align-items: center; justify-content: center;
+  }
+  .modal-overlay.active { display: flex; }
+  .modal {
+    background: white; border-radius: 16px;
+    padding: 24px; width: 92%; max-width: 500px;
+    box-shadow: 0 8px 32px rgba(0,150,255,.3);
+  }
+  .modal h3 { margin-bottom: 16px; font-family: 'Fredoka One', Arial; color: #00AAFF; font-size: 17px; }
+  .modal textarea {
+    width: 100%; height: 160px; border: 1px solid #ccc;
+    border-radius: 6px; padding: 8px; font-size: 11px;
+    font-family: monospace; resize: vertical;
+  }
+  .modal .modal-footer { display: flex; gap: 8px; justify-content: flex-end; margin-top: 12px; }
+
+  /* ── EMPTY / LOADING ── */
+  .empty-msg { padding: 18px; text-align: center; color: #aaa; font-style: italic; }
+  .loading-overlay {
+    position: fixed; inset: 0; background: rgba(255,255,255,.7);
+    z-index: 300; display: none; align-items: center; justify-content: center;
+    flex-direction: column; gap: 12px;
+    font-size: 14px; color: #0f3460; font-weight: 700;
+  }
+  .spinner-big {
+    width: 36px; height: 36px;
+    border: 4px solid #cce; border-top-color: #0f3460;
+    border-radius: 50%; animation: spin .8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── LEGEND ── */
+  .legend {
+    display: flex; gap: 12px; flex-wrap: wrap;
+    padding: 8px 24px; background: white;
+    border-bottom: 1px solid #CCE9FF;
+    font-size: 10.5px;
+  }
+  .legend-item { display: flex; align-items: center; gap: 5px; }
+  .legend-dot { width: 12px; height: 12px; border-radius: 3px; flex-shrink: 0; }
+
+  /* ── TOAST ── */
+  .toast {
+    position: fixed; bottom: 24px; right: 24px;
+    background: #2c3e50; color: white;
+    padding: 10px 18px; border-radius: 8px;
+    font-size: 12px; font-weight: 700;
+    box-shadow: 0 4px 16px rgba(0,0,0,.25);
+    z-index: 400;
+    transform: translateY(80px); opacity: 0;
+    transition: transform .3s, opacity .3s;
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+  .toast.ok   { background: #27ae60; }
+  .toast.err  { background: #c0392b; }
+
+  .ds-bar {
+    background: #f4f8fb; border-bottom: 1px solid #dde8f0;
+    padding: 5px 24px; display: flex; align-items: center; gap: 10px;
+    font-size: 11px; color: #555;
+  }
+  .ds-dot { width:9px; height:9px; border-radius:50%; background:#aaa; flex-shrink:0; transition:background .3s; }
+  .ds-dot.ok   { background:#27ae60; box-shadow:0 0 5px rgba(39,174,96,.5); }
+  .ds-dot.warn { background:#f39c12; }
+  .ds-dot.err  { background:#e74c3c; }
+  .ds-btn { background:white; border:1px solid #ccd6e0; border-radius:4px; padding:2px 9px; cursor:pointer; font-size:10.5px; color:#0077BB; }
+  .ds-btn:hover { background:#e8f4ff; }
+
+  @media print {
+    .toolbar, .header-actions, .add-row-btn, .btn-icon, .legend, .ds-bar { display: none; }
+    .store-section.collapsed .store-body { max-height: none !important; }
+    body { background: white; }
+    .content { padding: 4px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══════════ LOADING ══════════ -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="spinner-big"></div>
+  <span id="loadingMsg">Verificando sesión...</span>
+</div>
+
+<!-- ══════════ HEADER ══════════ -->
+<div class="header">
+  <div class="header-left">
+    <div class="logo-tbc">
+      <img src="logo.png" alt="La Magia De Ser Tu" onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
+      <span class="l-logo" style="display:none;">La Magia De Ser Tu</span>
+    </div>
+    <div>
+      <div class="header-title">Informe de Recepciones</div>
+      <div class="header-date" id="headerDate"></div>
+    </div>
+  </div>
+  <div class="header-center">La Magia De Ser Tu</div>
+  <div class="header-actions">
+    <span class="user-badge" id="userBadge"></span>
+    <button class="btn btn-light" onclick="expandAll()">Expandir todo</button>
+    <button class="btn btn-light" onclick="collapseAll()">Colapsar todo</button>
+    <button class="btn btn-success" onclick="exportCSV()">&#11015; Exportar Excel</button>
+    <button class="btn btn-light" onclick="window.print()">Imprimir</button>
+    <button class="btn btn-light" onclick="forceRefresh()" title="Limpiar caché y recargar datos frescos">&#8635; Actualizar</button>
+    <button class="btn btn-danger" onclick="logout()">Salir</button>
+  </div>
+</div>
+
+<!-- ══════════ NAV TABS ══════════ -->
+<div class="nav-tabs">
+  <a href="dashboard-recepciones.html" class="nav-tab active">&#128230; Recepciones</a>
+  <a href="dashboard-stock.html"       class="nav-tab">&#128202; Stock x Tienda</a>
+  <a href="dashboard-bolsas.html"      class="nav-tab">&#128717; Bolsas</a>
+  <a href="dashboard-guias.html"       class="nav-tab">&#128221; Guías</a>
+</div>
+
+<!-- ══════════ DATA SOURCE ══════════ -->
+<div class="ds-bar">
+  <span class="ds-dot warn" id="dsDot"></span>
+  <span id="dsText">Fuente: Vista previa (datos de muestra)</span>
+  <button class="ds-btn" onclick="testConnection()">&#128246; Probar conexión</button>
+</div>
+
+<!-- ══════════ LEGEND ══════════ -->
+<div class="legend">
+  <strong style="margin-right:4px;">Estado:</strong>
+  <div class="legend-item"><div class="legend-dot" style="background:#d5f5e3;border:1px solid #1e8449"></div> OK</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#fadbd8;border:1px solid #922b21"></div> Reportar - Faltante</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#fef9e7;border:1px solid #7d6608"></div> Sin Guía SAP</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#fde8d8;border:1px solid #a04000"></div> Revisar - Faltante y Sobrante</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#d6eaf8;border:1px solid #1a5276"></div> Sobrante</div>
+</div>
+
+<!-- ══════════ TOOLBAR ══════════ -->
+<div class="toolbar">
+  <label>Fecha:</label>
+  <input type="date" id="filterDate" onchange="applyFilters()">
+  <label for="filterStore">Bodega:</label>
+  <select id="filterStore" onchange="applyFilters()">
+    <option value="">— Todas —</option>
+  </select>
+  <label for="filterStatus">Estado:</label>
+  <select id="filterStatus" onchange="applyFilters()">
+    <option value="">— Todos —</option>
+    <option value="OK">OK</option>
+    <option value="FALTANTE">Reportar - Faltante</option>
+    <option value="SINGUIA">Sin Guía SAP</option>
+    <option value="REVISAR">Revisar - Faltante y Sobrante</option>
+    <option value="SOBRANTE">Sobrante</option>
+  </select>
+  <label for="searchBox">Buscar:</label>
+  <input type="text" id="searchBox" placeholder="N° doc, guía, bodega..." oninput="applyFilters()" style="width:180px">
+  <button class="btn btn-light" onclick="clearDateFilter()">Ver todas las fechas</button>
+  <button class="btn btn-light" onclick="clearFilters()">&#10005; Limpiar filtros</button>
+  <span id="resultCount" style="margin-left:auto;color:#666;font-size:11px;"></span>
+</div>
+
+<!-- ══════════ KPI BAR ══════════ -->
+<div class="summary-bar" id="kpiBar"></div>
+
+<!-- ══════════ CONTENT ══════════ -->
+<div class="content" id="mainContent"></div>
+
+<!-- ══════════ TOAST ══════════ -->
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="config.js"></script>
+<script>
+// ═══════════════════════════════════════════════
+//  INIT SUPABASE
+// ═══════════════════════════════════════════════
+const sb       = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const sbBronze = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, { db: { schema: 'bronze_layer' }, auth: { storageKey: 'tbc-bronze-auth', persistSession: false, autoRefreshToken: false } });
+let currentUser = null;
+
+// ═══════════════════════════════════════════════
+//  COLUMN DEFINITIONS
+// ═══════════════════════════════════════════════
+const COLS = [
+  { key: 'bodega',             label: 'BODEGA',              num: false },
+  { key: 'nombre_tienda',      label: 'TIENDA',              num: false },
+  { key: 'fecha_recepcion',    label: 'FECHA RECEPCION',     num: false },
+  { key: 'n_doc_tpv',         label: 'N° DOC TPV',          num: false },
+  { key: 'guia_envio_cd',     label: 'GUÍA ENVÍO CD',       num: false },
+  { key: 'guia_cierre_tienda',label: 'GUÍA CIERRE TIENDA',  num: false },
+  { key: 'bodega_origen',     label: 'BODEGA ORIGEN',       num: false },
+  { key: 'fecha_guia_envio',  label: 'FECHA GUÍA ENVÍO',    num: false },
+  { key: 'cant_enviada',      label: 'CANT. ENVIADA',       num: true  },
+  { key: 'cant_recep_tpv',    label: 'CANT. RECEP. TPV',    num: true  },
+  { key: 'cant_recep_tienda', label: 'CANT. RECEP. TIENDA', num: true  },
+  { key: 'faltante_con_guia', label: 'FALTANTE CON GUÍA',   num: true  },
+  { key: 'sobrante_con_guia', label: 'SOBRANTE CON GUÍA',   num: true  },
+  { key: 'sobrante_sin_guia', label: 'SOBRANTE SIN GUÍA',   num: true  },
+  { key: 'diferencia_neta',   label: 'DIFERENCIA NETA',     num: true  },
+  { key: 'estado',            label: 'ESTADO',              num: false }
+];
+
+// Data cache: array of Supabase row objects { id, bodega, ... }
+let data = [];
+
+// Lookup nombres de bodega desde caché de stock (o mapa estático como fallback)
+function getNombreBodega(codigo) {
+  try {
+    const stockCache = localStorage.getItem('tbc_stock_all');
+    if (stockCache) {
+      const { value } = JSON.parse(stockCache);
+      if (Array.isArray(value)) {
+        const match = value.find(r => r.codigo_almacen === codigo);
+        if (match && match.nombre_almacen) return match.nombre_almacen;
+      }
+    }
+  } catch(e) {}
+  return '';
+}
+
+// ═══════════════════════════════════════════════
+//  AUTH
+// ═══════════════════════════════════════════════
+async function initAuth() {
+  // Auth state handled in DOMContentLoaded
+  return true;
+}
+
+async function logout() {
+  await sb.auth.signOut();
+  window.location.href = 'login.html';
+}
+
+function forceRefresh() {
+  cacheClear('tbc_recep_');
+  loadData();
+  showToast('Caché limpiado — recargando datos frescos');
+}
+
+// ═══════════════════════════════════════════════
+//  DATA LOADING
+// ═══════════════════════════════════════════════
+function transformRow(row, i) {
+  const fechaRecep = row['FECHA RECEPCION'] ? String(row['FECHA RECEPCION']).split('T')[0] : null;
+  const fechaGuia  = row['FECHA GUIA ENVIO'] ? String(row['FECHA GUIA ENVIO']).split('T')[0] : null;
+  return {
+    id:                 i,
+    bodega:             row['BODEGA'],
+    nombre_tienda:      row['NOMBRE TIENDA'] || '',
+    fecha_recepcion:    fechaRecep,
+    n_doc_tpv:          String(row['N DOC TPV'] ?? ''),
+    guia_envio_cd:      String(row['GUIA ENVIO CD'] ?? ''),
+    guia_cierre_tienda: String(row['GUIA CIERRE TIENDA'] ?? ''),
+    bodega_origen:      row['BODEGA ORIGEN'],
+    fecha_guia_envio:   fechaGuia,
+    cant_enviada:       Number(row['CANT ENVIADA'])      || 0,
+    cant_recep_tpv:     Number(row['CANT RECEP TPV'])    || 0,
+    cant_recep_tienda:  Number(row['CANT RECEP TIENDA']) || 0,
+    faltante_con_guia:  Number(row['FALTANTE CON GUIA']) || 0,
+    sobrante_con_guia:  Number(row['SOBRANTE CON GUIA']) || 0,
+    sobrante_sin_guia:  Number(row['SOBRANTE SIN GUIA']) || 0,
+    diferencia_neta:    Number(row['DIFERENCIA NETA'])   || 0,
+    estado:             row['ESTADO'],
+  };
+}
+
+// ── Caché local ──
+function cacheSet(key, value) {
+  try { localStorage.setItem(key, JSON.stringify({ ts: Date.now(), value })); } catch(e) {}
+}
+function cacheGet(key, ttlMin = 30) {
+  try {
+    const raw = localStorage.getItem(key);
+    if (!raw) return null;
+    const { ts, value } = JSON.parse(raw);
+    if (Date.now() - ts > ttlMin * 60 * 1000) return null;
+    return value;
+  } catch(e) { return null; }
+}
+function cacheClear(prefix) {
+  Object.keys(localStorage).filter(k => k.startsWith(prefix)).forEach(k => localStorage.removeItem(k));
+}
+
+function withTimeout(promise, ms) {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), ms))
+  ]);
+}
+
+async function loadData() {
+  const dateVal = document.getElementById('filterDate').value;
+  const cacheKey = `tbc_recep_${dateVal || 'all'}`;
+
+  const cached = cacheGet(cacheKey, 30);
+  if (cached) {
+    data = cached;
+    render();
+    showToast(`${data.length.toLocaleString('es-CL')} registros (caché)`);
+    return;
+  }
+
+  const BATCH = 1000;
+  let allRows = [], from = 0, hasMore = true;
+  // No spinner — mock data is already visible; only show overlay for large imports
+
+  while (hasMore) {
+    let query = sbBronze
+      .from('raw_query_informe_tiendas_recep_cl')
+      .select('*')
+      .range(from, from + BATCH - 1);
+
+    let rows, error;
+    try {
+      const res = await withTimeout(query, 20000);
+      rows = res.data; error = res.error;
+    } catch(e) {
+      hideLoading();
+      showToast('Sin respuesta del servidor — mostrando muestra', 'err');
+      data = MOCK_RECEP; render(); return;
+    }
+
+    if (error) {
+      hideLoading();
+      showToast('Error: ' + error.message + ' — mostrando muestra', 'err');
+      data = MOCK_RECEP; render(); return;
+    }
+
+    allRows = allRows.concat(rows || []);
+    hasMore = (rows || []).length === BATCH;
+    from += BATCH;
+  }
+
+  data = allRows.map(transformRow);
+  if (data.length === 0) {
+    showToast('Sin datos para la fecha seleccionada');
+    setDataSource('supabase', 0);
+  } else {
+    cacheSet(cacheKey, data);
+    setDataSource('supabase', data.length);
+    showToast(`${data.length.toLocaleString('es-CL')} registros cargados`, 'ok');
+  }
+  render();
+}
+
+const MOCK_RECEP = [
+  { id:0,  bodega:'BTRT045', nombre_tienda:'TIENDA TBC PATIO OUTLET TEMUCO',     fecha_recepcion:'2026-05-02', n_doc_tpv:'1896', guia_envio_cd:'20043637', guia_cierre_tienda:'270004028', bodega_origen:'BBCE900', fecha_guia_envio:'2026-04-24', cant_enviada:35,  cant_recep_tpv:35,  cant_recep_tienda:35,  faltante_con_guia:0, sobrante_con_guia:0, sobrante_sin_guia:0, diferencia_neta:0,  estado:'OK' },
+  { id:1,  bodega:'BTRT045', nombre_tienda:'TIENDA TBC PATIO OUTLET TEMUCO',     fecha_recepcion:'2026-05-02', n_doc_tpv:'1900', guia_envio_cd:'20043856', guia_cierre_tienda:'270004032', bodega_origen:'BBCE900', fecha_guia_envio:'2026-04-28', cant_enviada:50,  cant_recep_tpv:50,  cant_recep_tienda:50,  faltante_con_guia:0, sobrante_con_guia:0, sobrante_sin_guia:0, diferencia_neta:0,  estado:'OK' },
+  { id:2,  bodega:'BTRT045', nombre_tienda:'TIENDA TBC PATIO OUTLET TEMUCO',     fecha_recepcion:'2026-05-02', n_doc_tpv:'1902', guia_envio_cd:'20043855', guia_cierre_tienda:'270004034', bodega_origen:'BBCE900', fecha_guia_envio:'2026-04-28', cant_enviada:25,  cant_recep_tpv:24,  cant_recep_tienda:24,  faltante_con_guia:1, sobrante_con_guia:0, sobrante_sin_guia:0, diferencia_neta:1,  estado:'REPORTAR - FALTANTE' },
+  { id:3,  bodega:'BTRT045', nombre_tienda:'TIENDA TBC PATIO OUTLET TEMUCO',     fecha_recepcion:'2026-05-02', n_doc_tpv:'1906', guia_envio_cd:'20043622', guia_cierre_tienda:'270004038', bodega_origen:'BBCE900', fecha_guia_envio:'2026-04-24', cant_enviada:400, cant_recep_tpv:400, cant_recep_tienda:400, faltante_con_guia:0, sobrante_con_guia:0, sobrante_sin_guia:0, diferencia_neta:0,  estado:'OK' },
+  { id:4,  bodega:'BTRT009', nombre_tienda:'TIENDA TBC MALL PORTAL NUNOA',       fecha_recepcion:'2026-05-02', n_doc_tpv:'2453', guia_envio_cd:'20044040', guia_cierre_tienda:'150002719', bodega_origen:'BBCE900', fecha_guia_envio:'2026-04-30', cant_enviada:136, cant_recep_tpv:144, cant_recep_tienda:135, faltante_con_guia:1, sobrante_con_guia:9, sobrante_sin_guia:0, diferencia_neta:-8, estado:'REVISAR - FALTANTE Y SOBRANTE CON GUIA' },
+  { id:5,  bodega:'BTRT044', nombre_tienda:'TIENDA TBC MALL ARAUCO MAIPU',       fecha_recepcion:'2026-05-02', n_doc_tpv:'1321', guia_envio_cd:'20043741', guia_cierre_tienda:'250003966', bodega_origen:'BBCE900', fecha_guia_envio:'2026-04-27', cant_enviada:46,  cant_recep_tpv:46,  cant_recep_tienda:46,  faltante_con_guia:0, sobrante_con_guia:0, sobrante_sin_guia:0, diferencia_neta:0,  estado:'OK' },
+  { id:6,  bodega:'BTRT044', nombre_tienda:'TIENDA TBC MALL ARAUCO MAIPU',       fecha_recepcion:'2026-05-02', n_doc_tpv:'1332', guia_envio_cd:'20043853', guia_cierre_tienda:'250003969', bodega_origen:'BBCE900', fecha_guia_envio:'2026-04-28', cant_enviada:26,  cant_recep_tpv:26,  cant_recep_tienda:26,  faltante_con_guia:0, sobrante_con_guia:0, sobrante_sin_guia:0, diferencia_neta:0,  estado:'OK' },
+  { id:7,  bodega:'BTRT007', nombre_tienda:'TIENDA TBC MALL ARAUCO QUILICURA',   fecha_recepcion:'2026-05-03', n_doc_tpv:'2484', guia_envio_cd:'20044013', guia_cierre_tienda:'130004494', bodega_origen:'BBCE900', fecha_guia_envio:'2026-04-29', cant_enviada:266, cant_recep_tpv:266, cant_recep_tienda:266, faltante_con_guia:0, sobrante_con_guia:0, sobrante_sin_guia:0, diferencia_neta:0,  estado:'OK' },
+  { id:8,  bodega:'BTRT006', nombre_tienda:'TIENDA TBC MALL PLAZA OESTE',        fecha_recepcion:'2026-05-04', n_doc_tpv:'1770', guia_envio_cd:'20044038', guia_cierre_tienda:'30002729',  bodega_origen:'BBCE900', fecha_guia_envio:'2026-04-30', cant_enviada:224, cant_recep_tpv:224, cant_recep_tienda:223, faltante_con_guia:1, sobrante_con_guia:1, sobrante_sin_guia:0, diferencia_neta:0,  estado:'REVISAR - FALTANTE Y SOBRANTE CON GUIA' },
+  { id:9,  bodega:'BTRT045', nombre_tienda:'TIENDA TBC PATIO OUTLET TEMUCO',     fecha_recepcion:'2026-05-04', n_doc_tpv:'1913', guia_envio_cd:'20044017', guia_cierre_tienda:'270004045', bodega_origen:'BBCE900', fecha_guia_envio:'2026-04-29', cant_enviada:133, cant_recep_tpv:133, cant_recep_tienda:129, faltante_con_guia:4, sobrante_con_guia:4, sobrante_sin_guia:0, diferencia_neta:0,  estado:'REVISAR - FALTANTE Y SOBRANTE CON GUIA' },
+  { id:10, bodega:'BTIE045', nombre_tienda:'TIENDA TBC PATIO OUTLET TEMUCO',     fecha_recepcion:'2026-05-02', n_doc_tpv:'1902', guia_envio_cd:'',         guia_cierre_tienda:'270004034', bodega_origen:'SIN GUIA SAP', fecha_guia_envio:null, cant_enviada:0, cant_recep_tpv:1, cant_recep_tienda:0, faltante_con_guia:0, sobrante_con_guia:0, sobrante_sin_guia:1, diferencia_neta:-1, estado:'SIN GUIA SAP - VERIFICAR ORIGEN' },
+  { id:11, bodega:'BTRT053', nombre_tienda:'TIENDA TBC OUTLET PLAZA EGANA',      fecha_recepcion:'2026-05-02', n_doc_tpv:'761',  guia_envio_cd:'20044045', guia_cierre_tienda:'270004027', bodega_origen:'BBCE900', fecha_guia_envio:'2026-04-30', cant_enviada:168, cant_recep_tpv:168, cant_recep_tienda:168, faltante_con_guia:0, sobrante_con_guia:0, sobrante_sin_guia:0, diferencia_neta:0,  estado:'OK' },
+];
+
+// ═══════════════════════════════════════════════
+//  HELPERS
+// ═══════════════════════════════════════════════
+function getStores() {
+  return [...new Set(data.map(r => r.bodega))].sort();
+}
+
+function statusClass(s) {
+  if (!s) return '';
+  const u = s.toUpperCase();
+  if (u === 'OK') return 'st-ok';
+  if (u.includes('FALTANTE') && u.includes('SOBRANTE')) return 'st-revisar';
+  if (u.includes('FALTANTE')) return 'st-faltante';
+  if (u.includes('SIN GUIA') || u.includes('SIN GUÍA')) return 'st-singuia';
+  if (u.includes('SOBRANTE')) return 'st-sobrante';
+  return '';
+}
+
+function statusFilterKey(s) {
+  if (!s) return '';
+  const u = s.toUpperCase();
+  if (u === 'OK') return 'OK';
+  if (u.includes('FALTANTE') && u.includes('SOBRANTE')) return 'REVISAR';
+  if (u.includes('FALTANTE')) return 'FALTANTE';
+  if (u.includes('SIN GUIA') || u.includes('SIN GUÍA')) return 'SINGUIA';
+  if (u.includes('SOBRANTE')) return 'SOBRANTE';
+  return '';
+}
+
+function rowMatchesFilters(row) {
+  const df  = document.getElementById('filterDate').value;
+  const sf  = document.getElementById('filterStore').value;
+  const stf = document.getElementById('filterStatus').value;
+  const sb2 = document.getElementById('searchBox').value.toLowerCase().trim();
+  if (df && row.fecha_recepcion !== df) return false;
+  if (sf && row.bodega !== sf) return false;
+  if (stf && statusFilterKey(row.estado) !== stf) return false;
+  if (sb2) {
+    const joined = COLS.map(c => String(row[c.key] ?? '')).join(' ').toLowerCase();
+    if (!joined.includes(sb2)) return false;
+  }
+  return true;
+}
+
+function fmtDate(d) {
+  if (!d) return '';
+  // d comes as yyyy-mm-dd from Supabase, display as dd-mm-yyyy
+  const parts = String(d).split('-');
+  if (parts.length === 3) return `${parts[2]}-${parts[1]}-${parts[0]}`;
+  return d;
+}
+
+function parseCSVDate(s) {
+  // Accepts dd-mm-yyyy or dd/mm/yyyy → returns yyyy-mm-dd for DB
+  if (!s) return null;
+  const m = s.match(/^(\d{1,2})[-/](\d{1,2})[-/](\d{4})$/);
+  if (m) return `${m[3]}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`;
+  // Already yyyy-mm-dd?
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+  return null;
+}
+
+function cellDisplayValue(col, row) {
+  const v = row[col.key];
+  if (col.key === 'fecha_recepcion' || col.key === 'fecha_guia_envio') return fmtDate(v);
+  if (v === null || v === undefined) return '';
+  return String(v);
+}
+
+// ═══════════════════════════════════════════════
+//  RENDER
+// ═══════════════════════════════════════════════
+function render() {
+  updateStoreFilter();
+  updateKPIs();
+  renderStores();
+}
+
+function updateStoreFilter() {
+  const sel = document.getElementById('filterStore');
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">— Todas —</option>';
+  getStores().forEach(s => {
+    const opt = document.createElement('option');
+    opt.value = s; opt.textContent = s;
+    if (s === cur) opt.selected = true;
+    sel.appendChild(opt);
+  });
+}
+
+function updateKPIs() {
+  const visible = data.filter(rowMatchesFilters);
+  const sum = k => visible.reduce((a, r) => a + (Number(r[k]) || 0), 0);
+
+  const totalEnv  = sum('cant_enviada');
+  const totalRecT = sum('cant_recep_tienda');
+  const totalFalt = sum('faltante_con_guia');
+  const totalSobC = sum('sobrante_con_guia');
+  const totalDif  = sum('diferencia_neta');
+  const countOK   = visible.filter(r => r.estado === 'OK').length;
+  const countFalt = visible.filter(r => (r.estado||'').toUpperCase().includes('FALTANTE') && !(r.estado||'').toUpperCase().includes('SOBRANTE')).length;
+  const countRev  = visible.filter(r => (r.estado||'').toUpperCase().includes('REVISAR') || ((r.estado||'').toUpperCase().includes('FALTANTE') && (r.estado||'').toUpperCase().includes('SOBRANTE'))).length;
+  const countSG   = visible.filter(r => (r.estado||'').toUpperCase().includes('SIN GUIA') || (r.estado||'').toUpperCase().includes('SIN GUÍA')).length;
+  const bodegas   = [...new Set(visible.map(r => r.bodega))].length;
+
+  document.getElementById('kpiBar').innerHTML = `
+    <div class="kpi"><div class="kpi-val">${visible.length}</div><div class="kpi-lbl">Guías</div></div>
+    <div class="kpi"><div class="kpi-val">${bodegas}</div><div class="kpi-lbl">Bodegas</div></div>
+    <div class="kpi"><div class="kpi-val">${totalEnv.toLocaleString('es-CL')}</div><div class="kpi-lbl">Cant. Enviada</div></div>
+    <div class="kpi"><div class="kpi-val">${totalRecT.toLocaleString('es-CL')}</div><div class="kpi-lbl">Recep. Tienda</div></div>
+    <div class="kpi danger"><div class="kpi-val">${totalFalt.toLocaleString('es-CL')}</div><div class="kpi-lbl">Faltante C/G</div></div>
+    <div class="kpi warn"><div class="kpi-val">${totalSobC.toLocaleString('es-CL')}</div><div class="kpi-lbl">Sobrante C/G</div></div>
+    <div class="kpi ok"><div class="kpi-val">${countOK}</div><div class="kpi-lbl">OK</div></div>
+    <div class="kpi danger"><div class="kpi-val">${countFalt}</div><div class="kpi-lbl">Faltantes</div></div>
+    <div class="kpi warn"><div class="kpi-val">${countRev}</div><div class="kpi-lbl">Revisar</div></div>
+    <div class="kpi warn"><div class="kpi-val">${countSG}</div><div class="kpi-lbl">Sin Guía SAP</div></div>
+    <div class="kpi ${totalDif < 0 ? 'danger' : totalDif > 0 ? 'warn' : 'ok'}">
+      <div class="kpi-val">${totalDif >= 0 ? '+' : ''}${totalDif.toLocaleString('es-CL')}</div>
+      <div class="kpi-lbl">Dif. Neta Total</div>
+    </div>
+  `;
+}
+
+function renderStores() {
+  const content = document.getElementById('mainContent');
+  const stores = getStores();
+  const filterStore = document.getElementById('filterStore').value;
+  let totalVisible = 0;
+  let html = '';
+
+  stores.forEach(store => {
+    if (filterStore && store !== filterStore) return;
+
+    const storeRows = data.filter(r => r.bodega === store && rowMatchesFilters(r));
+    totalVisible += storeRows.length;
+
+    const sum = k => storeRows.reduce((a, r) => a + (Number(r[k]) || 0), 0);
+    const tEnv  = sum('cant_enviada');
+    const tRecP = sum('cant_recep_tpv');
+    const tRecT = sum('cant_recep_tienda');
+    const tFalt = sum('faltante_con_guia');
+    const tSobC = sum('sobrante_con_guia');
+    const tSobS = sum('sobrante_sin_guia');
+    const tDif  = sum('diferencia_neta');
+
+    const statusCounts = {};
+    storeRows.forEach(r => { statusCounts[r.estado] = (statusCounts[r.estado] || 0) + 1; });
+    const metaParts = Object.entries(statusCounts).map(([k, v]) => `${v} ${k}`).join(' · ');
+
+    const storeName = storeRows[0]?.nombre_tienda || getNombreBodega(store);
+    html += `
+    <div class="store-section" id="sec-${store}">
+      <div class="store-header" onclick="toggleSection('${store}')">
+        <div>
+          ${storeName ? `<h2 style="font-size:15px;">&#128230; ${storeName}</h2>` : `<h2>&#128230; ${store}</h2>`}
+          ${storeName ? `<div style="font-size:11px;opacity:.75;margin-top:2px;font-weight:400;">${store}</div>` : ''}
+        </div>
+        <div class="store-meta">
+          <span>${storeRows.length} guía${storeRows.length !== 1 ? 's' : ''}</span>
+          ${metaParts ? `<span>${metaParts}</span>` : ''}
+          <span>Env: ${tEnv.toLocaleString('es-CL')} | Recep: ${tRecT.toLocaleString('es-CL')} | Dif: ${tDif >= 0 ? '+' : ''}${tDif}</span>
+        </div>
+        <span class="toggle-icon">&#9660;</span>
+      </div>
+      <div class="store-body" id="body-${store}">
+        <div class="table-wrap">
+          <table id="table-${store}">
+            <thead>
+              <tr>
+                ${COLS.map(c => `<th>${c.label}</th>`).join('')}
+              </tr>
+            </thead>
+            <tbody id="tbody-${store}">
+              ${storeRows.length === 0
+                ? `<tr><td colspan="${COLS.length + 1}" class="empty-msg">No hay registros con los filtros actuales</td></tr>`
+                : storeRows.map(r => renderRow(r)).join('')}
+            </tbody>
+            ${storeRows.length > 0 ? `
+            <tfoot>
+              <tr class="totals-row">
+                <td colspan="7" style="text-align:right;padding-right:10px;">TOTALES BODEGA</td>
+                <td class="num">${tEnv.toLocaleString('es-CL')}</td>
+                <td class="num">${tRecP.toLocaleString('es-CL')}</td>
+                <td class="num">${tRecT.toLocaleString('es-CL')}</td>
+                <td class="num">${tFalt.toLocaleString('es-CL')}</td>
+                <td class="num">${tSobC.toLocaleString('es-CL')}</td>
+                <td class="num">${tSobS.toLocaleString('es-CL')}</td>
+                <td class="num">${tDif >= 0 ? '+' : ''}${tDif.toLocaleString('es-CL')}</td>
+                <td></td>
+              </tr>
+            </tfoot>` : ''}
+          </table>
+        </div>
+      </div>
+    </div>`;
+  });
+
+  content.innerHTML = html || `<div class="empty-msg" style="padding:32px;font-size:14px;">No hay registros con los filtros seleccionados.</div>`;
+
+  // Arrancar todas colapsadas — el usuario expande lo que necesita
+  stores.forEach(s => {
+    const sec  = document.getElementById('sec-' + s);
+    const body = document.getElementById('body-' + s);
+    if (sec && body) {
+      sec.classList.add('collapsed');
+      body.style.maxHeight = '0';
+    }
+  });
+
+  document.getElementById('resultCount').textContent =
+    `${totalVisible} registro${totalVisible !== 1 ? 's' : ''} visibles`;
+}
+
+function renderRow(row) {
+  const cells = COLS.map(c => {
+    const v = cellDisplayValue(c, row);
+    if (c.key === 'estado') {
+      return `<td class="${statusClass(v)}">${v}</td>`;
+    }
+    const numCls  = c.num ? ' num' : '';
+    const diffCls = c.key === 'diferencia_neta' ? (Number(row[c.key]) < 0 ? ' neg' : Number(row[c.key]) > 0 ? ' pos' : '') : '';
+    return `<td class="${numCls}${diffCls}">${v}</td>`;
+  }).join('');
+  return `<tr id="row-${row.id}">${cells}</tr>`;
+}
+
+// ═══════════════════════════════════════════════
+//  CELL EDIT (save to Supabase)
+// ═══════════════════════════════════════════════
+async function updateCell(td) {
+  const id  = td.dataset.id;
+  const col = td.dataset.col;
+  let v     = td.innerText.trim();
+
+  const colDef = COLS.find(c => c.key === col);
+
+  // Parse display date back to DB format
+  if (col === 'fecha_recepcion' || col === 'fecha_guia_envio') {
+    v = parseCSVDate(v) || null;
+  } else if (colDef && colDef.num) {
+    const n = parseFloat(v);
+    v = isNaN(n) ? 0 : n;
+  }
+
+  const { error } = await sb.from('recepciones').update({ [col]: v, updated_at: new Date().toISOString() }).eq('id', id);
+  if (error) {
+    showToast('Error al guardar: ' + error.message, 'err');
+    return;
+  }
+
+  // Update local cache
+  const row = data.find(r => r.id === id);
+  if (row) {
+    row[col] = v;
+    // Re-render the row to update status color
+    const tr = document.getElementById('row-' + id);
+    if (tr) tr.outerHTML = renderRow(row);
+    updateKPIs();
+    updateStoreTotals(row.bodega);
+  }
+  showToast('Guardado', 'ok');
+}
+
+function updateStoreTotals(store) {
+  const storeRows = data.filter(r => r.bodega === store && rowMatchesFilters(r));
+  const sum = k => storeRows.reduce((a, r) => a + (Number(r[k]) || 0), 0);
+  const tEnv  = sum('cant_enviada');
+  const tRecP = sum('cant_recep_tpv');
+  const tRecT = sum('cant_recep_tienda');
+  const tFalt = sum('faltante_con_guia');
+  const tSobC = sum('sobrante_con_guia');
+  const tSobS = sum('sobrante_sin_guia');
+  const tDif  = sum('diferencia_neta');
+  const table = document.getElementById('table-' + store);
+  if (!table) return;
+  let tfoot = table.querySelector('tfoot');
+  if (!tfoot) { tfoot = document.createElement('tfoot'); table.appendChild(tfoot); }
+  tfoot.innerHTML = `<tr class="totals-row">
+    <td colspan="7" style="text-align:right;padding-right:10px;">TOTALES BODEGA</td>
+    <td class="num">${tEnv.toLocaleString('es-CL')}</td>
+    <td class="num">${tRecP.toLocaleString('es-CL')}</td>
+    <td class="num">${tRecT.toLocaleString('es-CL')}</td>
+    <td class="num">${tFalt.toLocaleString('es-CL')}</td>
+    <td class="num">${tSobC.toLocaleString('es-CL')}</td>
+    <td class="num">${tSobS.toLocaleString('es-CL')}</td>
+    <td class="num">${tDif >= 0 ? '+' : ''}${tDif.toLocaleString('es-CL')}</td>
+    <td></td>
+  </tr>`;
+}
+
+// ═══════════════════════════════════════════════
+//  ADD / DUP / DEL ROW
+// ═══════════════════════════════════════════════
+async function addRow(store) {
+  const today = new Date().toISOString().slice(0, 10);
+  const newRec = {
+    bodega: store, fecha_recepcion: today,
+    n_doc_tpv: '', guia_envio_cd: '', guia_cierre_tienda: '',
+    bodega_origen: '', fecha_guia_envio: null,
+    cant_enviada: 0, cant_recep_tpv: 0, cant_recep_tienda: 0,
+    faltante_con_guia: 0, sobrante_con_guia: 0, sobrante_sin_guia: 0,
+    diferencia_neta: 0, estado: 'OK'
+  };
+  const { data: inserted, error } = await sb.from('recepciones').insert(newRec).select().single();
+  if (error) { showToast('Error al agregar: ' + error.message, 'err'); return; }
+  data.push(inserted);
+  const tbody = document.getElementById('tbody-' + store);
+  if (tbody) {
+    if (tbody.querySelector('.empty-msg')) tbody.innerHTML = '';
+    tbody.insertAdjacentHTML('beforeend', renderRow(inserted));
+    const newTr = document.getElementById('row-' + inserted.id);
+    if (newTr) newTr.querySelector('td.editable').focus();
+  }
+  updateKPIs();
+  updateStoreTotals(store);
+  showToast('Fila agregada', 'ok');
+}
+
+async function dupRow(id) {
+  const orig = data.find(r => r.id === id);
+  if (!orig) return;
+  const { id: _, created_at, updated_at, ...fields } = orig;
+  const { data: inserted, error } = await sb.from('recepciones').insert(fields).select().single();
+  if (error) { showToast('Error al duplicar: ' + error.message, 'err'); return; }
+  const idx = data.findIndex(r => r.id === id);
+  data.splice(idx + 1, 0, inserted);
+  const tr = document.getElementById('row-' + id);
+  if (tr) tr.insertAdjacentHTML('afterend', renderRow(inserted));
+  updateKPIs();
+  updateStoreTotals(inserted.bodega);
+  showToast('Fila duplicada', 'ok');
+}
+
+async function delRow(id) {
+  const row = data.find(r => r.id === id);
+  if (!row) return;
+  if (!confirm(`¿Eliminar esta fila de ${row.bodega}?`)) return;
+  const { error } = await sb.from('recepciones').delete().eq('id', id);
+  if (error) { showToast('Error al eliminar: ' + error.message, 'err'); return; }
+  const store = row.bodega;
+  data = data.filter(r => r.id !== id);
+  const tr = document.getElementById('row-' + id);
+  if (tr) tr.remove();
+  updateKPIs();
+  updateStoreTotals(store);
+  showToast('Fila eliminada', 'ok');
+}
+
+// ═══════════════════════════════════════════════
+//  COLLAPSE / EXPAND
+// ═══════════════════════════════════════════════
+function toggleSection(store) {
+  const sec  = document.getElementById('sec-' + store);
+  const body = document.getElementById('body-' + store);
+  if (!sec || !body) return;
+  if (sec.classList.contains('collapsed')) {
+    sec.classList.remove('collapsed');
+    body.style.maxHeight = body.scrollHeight + 'px';
+  } else {
+    body.style.maxHeight = body.scrollHeight + 'px';
+    requestAnimationFrame(() => sec.classList.add('collapsed'));
+  }
+}
+function expandAll()   { getStores().forEach(s => { const sec = document.getElementById('sec-'+s); const body = document.getElementById('body-'+s); if(sec&&body){ sec.classList.remove('collapsed'); body.style.maxHeight = body.scrollHeight+'px'; }}); }
+function collapseAll() { getStores().forEach(s => { const sec = document.getElementById('sec-'+s); if(sec) sec.classList.add('collapsed'); }); }
+
+// ═══════════════════════════════════════════════
+//  FILTERS
+// ═══════════════════════════════════════════════
+function applyFilters() { updateKPIs(); renderStores(); }
+function clearFilters() {
+  document.getElementById('filterStore').value  = '';
+  document.getElementById('filterStatus').value = '';
+  document.getElementById('searchBox').value    = '';
+  applyFilters();
+}
+function clearDateFilter() {
+  document.getElementById('filterDate').value = '';
+  applyFilters();
+}
+
+// ═══════════════════════════════════════════════
+//  DATA SOURCE VALIDATOR
+// ═══════════════════════════════════════════════
+function setDataSource(src, count) {
+  const dot = document.getElementById('dsDot');
+  const txt = document.getElementById('dsText');
+  if (src === 'supabase') {
+    dot.className = 'ds-dot ok';
+    txt.textContent = `Fuente: Supabase ✓ — ${count.toLocaleString('es-CL')} registros cargados`;
+  } else if (src === 'mock') {
+    dot.className = 'ds-dot warn';
+    txt.textContent = 'Fuente: Vista previa (datos de muestra) — Supabase no respondió';
+  } else {
+    dot.className = 'ds-dot err';
+    txt.textContent = 'Error de conexión — mostrando datos de muestra';
+  }
+}
+
+async function testConnection() {
+  const dot = document.getElementById('dsDot');
+  const txt = document.getElementById('dsText');
+  dot.className = 'ds-dot';
+  txt.textContent = 'Probando conexión...';
+
+  try {
+    await withTimeout(sb.from('recepciones').select('id', { count: 'exact', head: true }), 5000);
+    txt.textContent = 'API Supabase OK → probando bronze_layer...';
+  } catch(e) {
+    dot.className = 'ds-dot err';
+    txt.textContent = 'ERROR: No se puede conectar a Supabase (red o URL incorrecta)';
+    showToast('Sin red a Supabase', 'err'); return;
+  }
+
+  try {
+    const res = await withTimeout(
+      sbBronze.from('raw_query_informe_tiendas_recep_cl').select('*', { count: 'exact', head: true }),
+      8000
+    );
+    if (res.error) {
+      dot.className = 'ds-dot err';
+      txt.textContent = `ERROR bronze_layer: ${res.error.message} — TI debe exponer el schema en Supabase → Settings → API → Exposed schemas`;
+      showToast('bronze_layer no accesible', 'err');
+    } else {
+      setDataSource('supabase', res.count || 0);
+      showToast('Conexión OK', 'ok');
+    }
+  } catch(e) {
+    dot.className = 'ds-dot err';
+    txt.textContent = 'TIMEOUT bronze_layer — TI debe agregar "bronze_layer" en Supabase → Settings → API → Exposed schemas';
+    showToast('Timeout bronze_layer', 'err');
+  }
+}
+
+// ═══════════════════════════════════════════════
+//  EXPORT CSV
+// ═══════════════════════════════════════════════
+function exportCSV() {
+  const storeFilter = document.getElementById('filterStore').value;
+  const visible = data.filter(rowMatchesFilters);
+  if (!visible.length) { showToast('Sin datos para exportar — selecciona una bodega o verifica filtros', 'err'); return; }
+
+  const wsData = visible.map(r => ({
+    'BODEGA':               r.bodega,
+    'FECHA RECEPCION':      r.fecha_recepcion,
+    'N DOC TPV':            r.n_doc_tpv,
+    'GUIA ENVIO CD':        r.guia_envio_cd,
+    'GUIA CIERRE TIENDA':   r.guia_cierre_tienda,
+    'BODEGA ORIGEN':        r.bodega_origen,
+    'FECHA GUIA ENVIO':     r.fecha_guia_envio,
+    'CANT ENVIADA':         r.cant_enviada,
+    'CANT RECEP TPV':       r.cant_recep_tpv,
+    'CANT RECEP TIENDA':    r.cant_recep_tienda,
+    'FALTANTE CON GUIA':    r.faltante_con_guia,
+    'SOBRANTE CON GUIA':    r.sobrante_con_guia,
+    'SOBRANTE SIN GUIA':    r.sobrante_sin_guia,
+    'DIFERENCIA NETA':      r.diferencia_neta,
+    'ESTADO':               r.estado,
+  }));
+
+  const wb   = XLSX.utils.book_new();
+  const ws   = XLSX.utils.json_to_sheet(wsData);
+  ws['!cols'] = [
+    {wch:10},{wch:14},{wch:10},{wch:12},{wch:16},
+    {wch:12},{wch:14},{wch:12},{wch:14},{wch:16},
+    {wch:14},{wch:14},{wch:14},{wch:14},{wch:38},
+  ];
+
+  const fecha    = document.getElementById('filterDate').value || new Date().toISOString().slice(0,10);
+  const sufijo   = storeFilter ? `_${storeFilter}` : '_TODAS';
+  const sheetNm  = storeFilter ? storeFilter : 'Recepciones';
+  XLSX.utils.book_append_sheet(wb, ws, sheetNm.slice(0,31));
+  XLSX.writeFile(wb, `INFORME_RECEP${sufijo}_${fecha}.xlsx`);
+  showToast(`${visible.length.toLocaleString('es-CL')} filas exportadas${storeFilter ? ' — ' + storeFilter : ''}`);
+}
+
+// ═══════════════════════════════════════════════
+//  IMPORT CSV
+// ═══════════════════════════════════════════════
+function openImport()  { document.getElementById('importModal').classList.add('active'); }
+function closeImport() {
+  document.getElementById('importModal').classList.remove('active');
+  document.getElementById('importText').value = '';
+  document.getElementById('importError').style.display = 'none';
+}
+
+async function doImport() {
+  const raw = document.getElementById('importText').value.trim();
+  const errDiv = document.getElementById('importError');
+  errDiv.style.display = 'none';
+
+  if (!raw) return;
+  const lines = raw.split('\n').map(l => l.trim()).filter(Boolean);
+  const records = [];
+  let skipped = 0;
+
+  for (const line of lines) {
+    const parts = line.split(';').map(p => p.replace(/^"|"$/g, '').trim());
+    // Skip header — acepta CSV con o sin columna NOMBRE TIENDA
+    if (parts[0].toUpperCase() === 'BODEGA') continue;
+
+    // Detectar si la fila incluye NOMBRE TIENDA (16 columnas) o no (15 columnas)
+    const hasNombre = parts.length >= 16;
+    if (parts.length < 15) { skipped++; continue; }
+
+    const numOrZero = v => { const n = parseFloat(v); return isNaN(n) ? 0 : n; };
+    const offset = hasNombre ? 1 : 0;
+
+    records.push({
+      bodega:              parts[0] || null,
+      nombre_tienda:       hasNombre ? (parts[1] || null) : null,
+      fecha_recepcion:     parseCSVDate(parts[1 + offset]),
+      n_doc_tpv:           parts[2 + offset] || null,
+      guia_envio_cd:       parts[3 + offset] || null,
+      guia_cierre_tienda:  parts[4 + offset] || null,
+      bodega_origen:       parts[5 + offset] || null,
+      fecha_guia_envio:    parseCSVDate(parts[6 + offset]) || null,
+      cant_enviada:        numOrZero(parts[7 + offset]),
+      cant_recep_tpv:      numOrZero(parts[8 + offset]),
+      cant_recep_tienda:   numOrZero(parts[9 + offset]),
+      faltante_con_guia:   numOrZero(parts[10 + offset]),
+      sobrante_con_guia:   numOrZero(parts[11 + offset]),
+      sobrante_sin_guia:   numOrZero(parts[12 + offset]),
+      diferencia_neta:     numOrZero(parts[13 + offset]),
+      estado:              parts[14 + offset] || 'OK'
+    });
+  }
+
+  if (records.length === 0) {
+    errDiv.textContent = 'No se encontraron filas válidas. Verificá el formato del CSV.';
+    errDiv.style.display = 'block';
+    return;
+  }
+
+  showLoading(`Importando ${records.length} registros...`);
+  closeImport();
+
+  // Insert in batches of 100
+  let total = 0;
+  for (let i = 0; i < records.length; i += 100) {
+    const batch = records.slice(i, i + 100);
+    const { error } = await sb.from('recepciones').insert(batch);
+    if (error) {
+      hideLoading();
+      showToast('Error al importar: ' + error.message, 'err');
+      await loadData();
+      return;
+    }
+    total += batch.length;
+  }
+
+  hideLoading();
+  showToast(`Importados ${total} registro${total !== 1 ? 's' : ''}`, 'ok');
+  await loadData();
+}
+
+// ═══════════════════════════════════════════════
+//  UI UTILITIES
+// ═══════════════════════════════════════════════
+function showLoading(msg) {
+  document.getElementById('loadingMsg').textContent = msg || 'Cargando...';
+  document.getElementById('loadingOverlay').style.display = 'flex';
+}
+function hideLoading() {
+  document.getElementById('loadingOverlay').style.display = 'none';
+}
+
+let toastTimer;
+function showToast(msg, type) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show ' + (type || '');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { t.className = 'toast'; }, 2500);
+}
+
+// ═══════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', async () => {
+  const d = new Date();
+  document.getElementById('headerDate').textContent =
+    `Fecha: ${d.toLocaleDateString('es-CL', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}`;
+
+  // No default date — show all data on first load
+
+  // Show mock data immediately — no spinner on first paint
+  data = MOCK_RECEP;
+  render();
+  showToast('Cargando datos reales...', '');
+
+  // Auth check (non-blocking for UX — just updates badge)
+  try {
+    const { data: { session } } = await Promise.race([
+      sb.auth.getSession(),
+      new Promise((_, r) => setTimeout(() => r(new Error('auth timeout')), 5000))
+    ]);
+    if (session) {
+      currentUser = session.user;
+      document.getElementById('userBadge').textContent = currentUser.email;
+    } else {
+      document.getElementById('userBadge').textContent = 'Vista previa';
+    }
+  } catch(e) {
+    document.getElementById('userBadge').textContent = 'Vista previa';
+  }
+
+  // Load real data in background — replaces mock when ready
+  try {
+    await loadData();
+  } catch(e) {
+    hideLoading();
+    showToast('Error inesperado — mostrando muestra', 'err');
+  }
+
+  // Auto-refresh silencioso cada 15 minutos
+  setInterval(() => {
+    cacheClear('tbc_recep_');
+    loadData();
+  }, 15 * 60 * 1000);
+});
+</script>
+</body>
+</html>

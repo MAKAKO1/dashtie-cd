@@ -1,0 +1,1108 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stock x Tienda — The Brands Club</title>
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: Arial, sans-serif;
+    font-size: 12px;
+    background: #EBF6FF;
+    color: #1a1a1a;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    background: linear-gradient(135deg, #00AAFF 0%, #0090DD 100%);
+    color: white;
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 3px 12px rgba(0,150,255,.35);
+    position: sticky; top: 0; z-index: 100;
+  }
+  .header-left { display: flex; align-items: center; gap: 14px; }
+
+  .header-center {
+    flex: 1;
+    text-align: center;
+    font-family: 'Fredoka One', Arial;
+    font-size: 18px;
+    letter-spacing: 0.5px;
+    color: rgba(255,255,255,.95);
+    white-space: nowrap;
+  }
+
+  .logo-tbc {
+    background: white;
+    border-radius: 10px;
+    padding: 5px 11px 4px;
+    text-align: center;
+    line-height: 1.05;
+    box-shadow: 0 2px 6px rgba(0,0,0,.15);
+    min-width: 86px;
+  }
+  .logo-tbc img {
+    max-height: 44px;
+    display: block;
+    margin: 0 auto;
+  }
+  .logo-tbc .l-logo { display: block; font-family: 'Fredoka One', Arial; font-size: 15px; color: #00AAFF; }
+
+  .header-title { font-family: 'Fredoka One', Arial; font-size: 20px; letter-spacing: .5px; }
+  .header-date  { font-size: 11px; opacity: .85; margin-top: 1px; }
+  .header-actions { display: flex; gap: 8px; align-items: center; }
+  .user-badge {
+    font-size: 10.5px; opacity: .9;
+    background: rgba(255,255,255,.25);
+    padding: 4px 10px; border-radius: 20px;
+  }
+
+  /* ── NAV TABS ── */
+  .nav-tabs {
+    background: #0090DD;
+    display: flex;
+    padding: 0 24px;
+    border-bottom: 3px solid #007ABB;
+  }
+  .nav-tab {
+    display: inline-block;
+    padding: 9px 20px;
+    color: rgba(255,255,255,.65);
+    text-decoration: none;
+    font-family: 'Fredoka One', Arial;
+    font-size: 13px;
+    letter-spacing: .4px;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -3px;
+    transition: color .15s, border-color .15s;
+  }
+  .nav-tab:hover { color: rgba(255,255,255,.9); }
+  .nav-tab.active { color: white; border-bottom-color: white; }
+
+  /* ── TOOLBAR ── */
+  .toolbar {
+    background: white;
+    padding: 10px 24px;
+    display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+    border-bottom: 2px solid #CCE9FF;
+    box-shadow: 0 1px 4px rgba(0,150,255,.08);
+  }
+  .toolbar label { font-weight: 700; color: #0077BB; font-size: 11px; }
+  .toolbar select, .toolbar input {
+    border: 1.5px solid #99D4F5; border-radius: 6px;
+    padding: 5px 10px; font-size: 12px; outline: none;
+    transition: border-color .2s;
+  }
+  .toolbar select:focus, .toolbar input:focus { border-color: #00AAFF; }
+
+  /* ── SUMMARY BAR ── */
+  .summary-bar {
+    display: flex; gap: 12px; flex-wrap: wrap;
+    padding: 10px 24px;
+    background: #fff;
+    border-bottom: 1px solid #CCE9FF;
+  }
+  .kpi {
+    background: #F0F9FF;
+    border: 1.5px solid #99D4F5;
+    border-radius: 10px;
+    padding: 8px 16px;
+    min-width: 130px;
+    text-align: center;
+  }
+  .kpi .kpi-val { font-family: 'Fredoka One', Arial; font-size: 22px; color: #00AAFF; }
+  .kpi .kpi-lbl { font-size: 10px; color: #666; text-transform: uppercase; letter-spacing: .5px; margin-top: 2px; }
+  .kpi.warn  .kpi-val { color: #e67e22; }
+  .kpi.ok    .kpi-val { color: #27ae60; }
+  .kpi.info  .kpi-val { color: #00AAFF; }
+
+  /* ── MAIN CONTENT ── */
+  .content { padding: 16px 24px; }
+
+  /* ── TABLE WRAP ── */
+  .table-card {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 12px rgba(0,150,255,.1);
+  }
+
+  /* ── TABLE ── */
+  .table-wrap { overflow-x: auto; }
+  table {
+    width: 100%; border-collapse: collapse;
+    background: white;
+    font-size: 12.5px;
+  }
+  thead tr { background: #00AAFF; color: white; }
+  thead th {
+    padding: 10px 10px; text-align: center;
+    border: 1px solid #0088CC;
+    white-space: nowrap; font-weight: 700;
+    font-size: 11px; letter-spacing: .3px;
+    cursor: pointer; user-select: none;
+  }
+  thead th:hover { background: #0099EE; }
+  thead th .sort-icon { margin-left: 4px; opacity: .5; }
+  thead th.sorted .sort-icon { opacity: 1; }
+
+  tbody tr { border-bottom: 1px solid #e8edf2; transition: background .15s; }
+  tbody tr:hover { background: #f0f5ff; }
+  tbody tr:nth-child(even) { background: #f9fbfd; }
+  tbody tr:nth-child(even):hover { background: #e8f0fe; }
+
+  td {
+    padding: 9px 10px; border: 1px solid #dde3ee;
+    vertical-align: middle; text-align: center;
+  }
+  td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  td.txt { text-align: left; }
+  td.stock-high    { background: #d5f5e3; color: #1e8449; font-weight: 700; }
+  td.stock-med     { background: #fef9e7; color: #7d6608; font-weight: 700; }
+  td.stock-low     { background: #fadbd8; color: #922b21; font-weight: 700; }
+  td.transito-ok   { background: #E5F6FF; color: #0077BB; font-weight: 700; }
+  td.transito-none { color: #bbb; }
+
+  /* ── STORE SECTIONS (grouped view) ── */
+  .store-section { margin-bottom: 20px; }
+  .store-header {
+    background: linear-gradient(90deg, #00AAFF, #0088CC);
+    color: white; padding: 9px 16px;
+    border-radius: 10px 10px 0 0;
+    display: flex; align-items: center; justify-content: space-between;
+    cursor: pointer; user-select: none;
+    box-shadow: 0 2px 6px rgba(0,150,255,.25);
+  }
+  .store-header h2 { font-family: 'Fredoka One', Arial; font-size: 14px; letter-spacing: .5px; margin: 0; }
+  .store-header .store-meta { font-size: 11px; opacity: .9; display: flex; gap: 16px; flex-wrap: wrap; }
+  .store-header .toggle-icon { font-size: 14px; transition: transform .25s; flex-shrink: 0; }
+  .store-section.collapsed .toggle-icon { transform: rotate(-90deg); }
+  .store-body { overflow: hidden; transition: max-height .3s ease; background: white; }
+  .store-section.collapsed .store-body { max-height: 0 !important; }
+
+  /* ── TOTALS ROW ── */
+  tr.totals-row td {
+    background: #0088CC; color: white; font-weight: 800;
+    font-size: 11px; border: 1px solid #006DAA;
+  }
+
+  /* ── GENERAL BUTTONS ── */
+  .btn {
+    padding: 6px 14px; border: none; border-radius: 20px;
+    cursor: pointer; font-size: 11.5px; font-weight: 700;
+    transition: opacity .2s; letter-spacing: .3px;
+  }
+  .btn:hover { opacity: .85; }
+  .btn-primary { background: #0090DD; color: white; }
+  .btn-success { background: #27ae60; color: white; }
+  .btn-warning { background: #e67e22; color: white; }
+  .btn-light   { background: rgba(255,255,255,.25); color: white; border: 1px solid rgba(255,255,255,.4); }
+  .btn-info    { background: #00AAFF; color: white; }
+
+  /* ── MODAL ── */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,.55); z-index: 200;
+    align-items: center; justify-content: center;
+  }
+  .modal-overlay.active { display: flex; }
+  .modal {
+    background: white; border-radius: 16px;
+    padding: 24px; width: 92%; max-width: 520px;
+    box-shadow: 0 8px 32px rgba(0,150,255,.3);
+  }
+  .modal h3 { margin-bottom: 12px; font-family: 'Fredoka One', Arial; color: #00AAFF; font-size: 17px; }
+  .modal textarea {
+    width: 100%; height: 160px; border: 1px solid #ccc;
+    border-radius: 6px; padding: 8px; font-size: 11px;
+    font-family: monospace; resize: vertical;
+  }
+  .modal .modal-footer { display: flex; gap: 8px; justify-content: flex-end; margin-top: 12px; }
+
+  /* ── EMPTY / LOADING ── */
+  .empty-msg { padding: 18px; text-align: center; color: #aaa; font-style: italic; }
+  .loading-overlay {
+    position: fixed; inset: 0; background: rgba(255,255,255,.7);
+    z-index: 300; display: flex; align-items: center; justify-content: center;
+    flex-direction: column; gap: 12px;
+    font-size: 14px; color: #0f3460; font-weight: 700;
+  }
+  .spinner-big {
+    width: 36px; height: 36px;
+    border: 4px solid #cce; border-top-color: #0f3460;
+    border-radius: 50%; animation: spin .8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── PAGINATION ── */
+  .load-more-wrap {
+    text-align: center; padding: 10px 0 4px;
+    background: white; border: 1px solid #dde3ee;
+    border-top: none; border-radius: 0 0 8px 8px;
+  }
+  .load-more-info { font-size: 11px; color: #888; margin-top: 6px; }
+
+  /* ── TOAST ── */
+  .toast {
+    position: fixed; bottom: 24px; right: 24px;
+    background: #2c3e50; color: white;
+    padding: 10px 18px; border-radius: 8px;
+    font-size: 12px; font-weight: 700;
+    box-shadow: 0 4px 16px rgba(0,0,0,.25);
+    z-index: 400;
+    transform: translateY(80px); opacity: 0;
+    transition: transform .3s, opacity .3s;
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+  .toast.ok  { background: #27ae60; }
+  .toast.err { background: #c0392b; }
+
+  /* ── BADGE CLASE ── */
+  .badge-clase {
+    display: inline-block;
+    background: #E5F6FF; color: #0077BB;
+    border: 1px solid #99D4F5;
+    border-radius: 10px; padding: 1px 7px;
+    font-size: 10px; font-weight: 700;
+    white-space: nowrap;
+  }
+
+  td.alm-link { cursor: pointer; }
+  td.alm-link:hover { text-decoration: underline; background: #E5F6FF; }
+
+  /* ── DATA SOURCE BAR ── */
+  .ds-bar {
+    background: #f4f8fb; border-bottom: 1px solid #dde8f0;
+    padding: 5px 24px; display: flex; align-items: center; gap: 10px;
+    font-size: 11px; color: #555;
+  }
+  .ds-dot {
+    width: 9px; height: 9px; border-radius: 50%;
+    background: #aaa; flex-shrink: 0; transition: background .3s;
+  }
+  .ds-dot.ok  { background: #27ae60; box-shadow: 0 0 5px rgba(39,174,96,.5); }
+  .ds-dot.warn{ background: #f39c12; }
+  .ds-dot.err { background: #e74c3c; }
+  .ds-btn {
+    background: white; border: 1px solid #ccd6e0; border-radius: 4px;
+    padding: 2px 9px; cursor: pointer; font-size: 10.5px; color: #0077BB;
+  }
+  .ds-btn:hover { background: #e8f4ff; }
+
+  @media print {
+    .toolbar, .header-actions, .btn, .nav-tabs, .ds-bar { display: none; }
+    body { background: white; }
+    .content { padding: 4px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══════════ LOADING ══════════ -->
+<div class="loading-overlay" id="loadingOverlay" style="display:none">
+  <div class="spinner-big"></div>
+  <span id="loadingMsg">Cargando...</span>
+</div>
+
+<!-- ══════════ HEADER ══════════ -->
+<div class="header">
+  <div class="header-left">
+    <div class="logo-tbc">
+      <img src="logo.png" alt="La Magia De Ser Tu" onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
+      <span class="l-logo" style="display:none;">La Magia De Ser Tu</span>
+    </div>
+    <div>
+      <div class="header-title">Stock x Tienda</div>
+      <div class="header-date" id="headerDate"></div>
+    </div>
+  </div>
+  <div class="header-center">La Magia De Ser Tu</div>
+  <div class="header-actions">
+    <span class="user-badge" id="userBadge">Vista previa</span>
+    <button class="btn btn-success" onclick="exportCSV()">&#11015; Exportar Excel</button>
+    <button class="btn btn-light" onclick="window.print()">Imprimir</button>
+    <button class="btn btn-light" onclick="forceRefresh()" title="Limpiar caché y recargar datos frescos">&#8635; Actualizar</button>
+    <button class="btn btn-danger" style="background:#c0392b;color:white;border:none;" onclick="logout()">Salir</button>
+  </div>
+</div>
+
+<!-- ══════════ NAV TABS ══════════ -->
+<div class="nav-tabs">
+  <a href="dashboard-recepciones.html" class="nav-tab">&#128230; Recepciones</a>
+  <a href="dashboard-stock.html"       class="nav-tab active">&#128202; Stock x Tienda</a>
+  <a href="dashboard-bolsas.html"      class="nav-tab">&#128717; Bolsas</a>
+  <a href="dashboard-guias.html"       class="nav-tab">&#128221; Guías</a>
+</div>
+
+<!-- ══════════ DATA SOURCE ══════════ -->
+<div class="ds-bar">
+  <span class="ds-dot warn" id="dsDot"></span>
+  <span id="dsText">Fuente: Vista previa (datos de muestra)</span>
+  <button class="ds-btn" onclick="testConnection()">&#128246; Probar conexión</button>
+</div>
+
+<!-- ══════════ TOOLBAR ══════════ -->
+<div class="toolbar">
+  <label>&#128202; Tipo:</label>
+  <select id="filterTipo" onchange="applyFilters()">
+    <option value="">— Todos —</option>
+    <option value="BTIE">Tiendas (BTIE)</option>
+    <option value="BTRT">Tránsito (BTRT)</option>
+  </select>
+  <label>&#128269; Almacén:</label>
+  <select id="filterAlmacen" onchange="applyFilters()">
+    <option value="">— Todos —</option>
+  </select>
+
+  <label style="margin-left:8px;">Clase:</label>
+  <select id="filterClase" onchange="applyFilters()">
+    <option value="">— Todas —</option>
+  </select>
+
+  <label>Temporada:</label>
+  <select id="filterTemporada" onchange="applyFilters()">
+    <option value="">— Todas —</option>
+  </select>
+
+  <label>Buscar:</label>
+  <input type="text" id="searchBox" placeholder="SKU, descripción..." oninput="applyFilters()" style="width:180px">
+
+  <button class="btn btn-light" onclick="clearFilters()">&#10005; Limpiar</button>
+  <button class="btn btn-light" onclick="expandAllStores()">&#9660; Expandir todo</button>
+  <button class="btn btn-light" onclick="collapseAllStores()">&#9650; Colapsar todo</button>
+  <div style="margin-left:auto;display:flex;align-items:center;gap:6px;">
+    <span style="font-size:10.5px;color:#0077BB;font-weight:700;">Vista:</span>
+    <button id="btnOverview" onclick="setViewMode('overview')"
+      style="font-size:10.5px;padding:4px 10px;border:1px solid #99D4F5;border-radius:12px;background:white;cursor:pointer;color:#0077BB;font-weight:700;">
+      Resumen
+    </button>
+    <button id="btnAll" onclick="setViewMode('all')"
+      style="font-size:10.5px;padding:4px 10px;border:1px solid #99D4F5;border-radius:12px;background:white;cursor:pointer;color:#0077BB;">
+      Lista completa
+    </button>
+    <span id="resultCount" style="margin-left:8px;color:#666;font-size:11px;"></span>
+  </div>
+</div>
+
+<!-- ══════════ KPI BAR ══════════ -->
+<div class="summary-bar" id="kpiBar"></div>
+
+<!-- ══════════ CONTENT ══════════ -->
+<div class="content" id="mainContent"></div>
+
+<!-- ══════════ TOAST ══════════ -->
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="config.js"></script>
+<script>
+// ═══════════════════════════════════════════════
+//  INIT SUPABASE
+// ═══════════════════════════════════════════════
+const sb       = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const sbBronze = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, { db: { schema: 'bronze_layer' }, auth: { storageKey: 'tbc-bronze-auth', persistSession: false, autoRefreshToken: false } });
+let currentUser = null;
+
+// ═══════════════════════════════════════════════
+//  CAPACIDADES TIENDAS (agregar datos aquí)
+// ═══════════════════════════════════════════════
+const capacidadesTiendas = {
+  'BTIE019': { min: 18000, max: 20000 },
+  'BTIE007': { min: 16000, max: 28000 },
+  'BTIE006': { min: 13000, max: 15000 },
+  'BTIE045': { min: 8000,  max: 9000 },
+  'BTIE041': { min: 8000,  max: 9000 },
+  'BTIE055': { min: 7000,  max: 10000 },
+  'BTIE053': { min: 9000,  max: 11000 },
+  'BTIE009': { min: 9000,  max: 10000 },
+  'BTIE002': { min: 9000,  max: 10000 },
+  'BTIE057': { min: 9000,  max: 10000 },
+  'BTIE054': { min: 7000,  max: 10000 },
+  'BTIE044': { min: 5500,  max: 6500 },
+  'BTIE005': { min: 8000,  max: 10000 },
+  'BTIE063': { min: 7000,  max: 8500 },
+  'BTIE056': { min: 3500,  max: 3500 },
+  'BTIE059': { min: 2500,  max: 2500 },
+  'BTIE058': { min: 2500,  max: 2500 },
+  'BTIE062': { min: 7000,  max: 8500 },
+};
+
+// ═══════════════════════════════════════════════
+//  COLUMN DEFINITIONS
+// ═══════════════════════════════════════════════
+const COLS = [
+  { key: 'codigo_almacen',  label: 'CÓD. ALMACÉN',  num: false },
+  { key: 'nombre_almacen',  label: 'NOMBRE ALMACÉN', num: false, wide: true },
+  { key: 'sku_padre',       label: 'SKU PADRE',      num: false },
+  { key: 'sku_hijo',        label: 'SKU HIJO',       num: false },
+  { key: 'descripcion',     label: 'DESCRIPCIÓN',    num: false, wide: true },
+  { key: 'en_stock',        label: 'EN STOCK',       num: true  },
+  { key: 'en_transito',     label: 'EN TRÁNSITO',    num: true  },
+  { key: 'temporada',       label: 'TEMPORADA',      num: false },
+  { key: 'clase',           label: 'CLASE',          num: false },
+];
+
+// ═══════════════════════════════════════════════
+//  MOCK DATA (preview — reemplazar por Supabase)
+// ═══════════════════════════════════════════════
+const MOCK_DATA = [
+  // BTIE002
+  { id:'m01', codigo_almacen:'BTIE002', nombre_almacen:'TIENDA TBC OUTLET LA FABRICA PATIO', sku_padre:271010026, sku_hijo:27101002661093, descripcion:'HLW0038 - FIGURA PACK (4" FIGURA ASSORTMENT B)', en_stock:1, en_transito:0, temporada:'TT24', clase:'FIGURAS DE ACCION Y COLECCIONABLES' },
+  { id:'m02', codigo_almacen:'BTIE002', nombre_almacen:'TIENDA TBC OUTLET LA FABRICA PATIO', sku_padre:271014155, sku_hijo:27101415561092, descripcion:'NT412904 - NINTENDO 2,5" FIGURA DE ACCION ARTICULADA W34', en_stock:3, en_transito:12, temporada:'TTEM', clase:'FIGURAS DE ACCION Y COLECCIONABLES' },
+  { id:'m03', codigo_almacen:'BTIE002', nombre_almacen:'TIENDA TBC OUTLET LA FABRICA PATIO', sku_padre:335013266, sku_hijo:33501326661092, descripcion:'(HKT008-BP139A) MOCHILA BACKPACK ROJO HELLO KITTY', en_stock:1, en_transito:6, temporada:'Q125', clase:'UTILES ESCOLARES' },
+  { id:'m04', codigo_almacen:'BTIE002', nombre_almacen:'TIENDA TBC OUTLET LA FABRICA PATIO', sku_padre:241013129, sku_hijo:24101312961092, descripcion:'(TITANIO) BOTELLA METALICA INSIDE OUT 2', en_stock:1, en_transito:0, temporada:'TT24', clase:'BOTELLA' },
+  { id:'m05', codigo_almacen:'BTIE002', nombre_almacen:'TIENDA TBC OUTLET LA FABRICA PATIO', sku_padre:217010088, sku_hijo:21701008861092, descripcion:'POLERA MANGA CORTA NIÑA MINNIE MOUSE ROSA', en_stock:5, en_transito:20, temporada:'Q225', clase:'POLERA' },
+  { id:'m06', codigo_almacen:'BTIE002', nombre_almacen:'TIENDA TBC OUTLET LA FABRICA PATIO', sku_padre:217010091, sku_hijo:21701009161093, descripcion:'POLERA MANGA CORTA NIÑO SPIDER-MAN AZUL', en_stock:8, en_transito:0, temporada:'Q225', clase:'POLERA' },
+  { id:'m07', codigo_almacen:'BTIE002', nombre_almacen:'TIENDA TBC OUTLET LA FABRICA PATIO', sku_padre:331015200, sku_hijo:33101520061091, descripcion:'MOCHILA STITCH ESTAMPADA AZUL 16"', en_stock:2, en_transito:8, temporada:'Q125', clase:'UTILES ESCOLARES' },
+  { id:'m08', codigo_almacen:'BTIE002', nombre_almacen:'TIENDA TBC OUTLET LA FABRICA PATIO', sku_padre:290012045, sku_hijo:29001204561092, descripcion:'MUÑECA BARBIE FASHIONISTA #198 RUBIA VESTIDO ROSA', en_stock:4, en_transito:0, temporada:'Q225', clase:'MUÑECAS Y PELUCHES' },
+  // BTIE005
+  { id:'m09', codigo_almacen:'BTIE005', nombre_almacen:'TIENDA TBC MALL VIVO CENTRO', sku_padre:271010026, sku_hijo:27101002661093, descripcion:'HLW0038 - FIGURA PACK (4" FIGURA ASSORTMENT B)', en_stock:12, en_transito:24, temporada:'TT24', clase:'FIGURAS DE ACCION Y COLECCIONABLES' },
+  { id:'m10', codigo_almacen:'BTIE005', nombre_almacen:'TIENDA TBC MALL VIVO CENTRO', sku_padre:335013890, sku_hijo:33501389061091, descripcion:'ESTUCHE ESCOLAR DOBLE CIERRES STITCH CELESTE', en_stock:25, en_transito:0, temporada:'Q125', clase:'UTILES ESCOLARES' },
+  { id:'m11', codigo_almacen:'BTIE005', nombre_almacen:'TIENDA TBC MALL VIVO CENTRO', sku_padre:217010055, sku_hijo:21701005561092, descripcion:'POLERA NIÑA FROZEN ELSA LILA MANGA CORTA', en_stock:7, en_transito:30, temporada:'Q225', clase:'POLERA' },
+  { id:'m12', codigo_almacen:'BTIE005', nombre_almacen:'TIENDA TBC MALL VIVO CENTRO', sku_padre:217010060, sku_hijo:21701006061091, descripcion:'POLERON CON CAPUCHA NIÑO AVENGERS GRIS', en_stock:3, en_transito:15, temporada:'Q225', clase:'POLERON' },
+  { id:'m13', codigo_almacen:'BTIE005', nombre_almacen:'TIENDA TBC MALL VIVO CENTRO', sku_padre:290013110, sku_hijo:29001311061092, descripcion:'MUÑECA MINI PRINCESS BELLE VESTIDO AMARILLO', en_stock:9, en_transito:0, temporada:'TTEM', clase:'MUÑECAS Y PELUCHES' },
+  { id:'m14', codigo_almacen:'BTIE005', nombre_almacen:'TIENDA TBC MALL VIVO CENTRO', sku_padre:275014022, sku_hijo:27501402261091, descripcion:'AUTO HOT WHEELS 1:64 EDICION ESPECIAL COLORES SURTIDOS', en_stock:45, en_transito:0, temporada:'TT25', clase:'AUTOS Y VEHICULOS A CONTROL REMOTO' },
+  { id:'m15', codigo_almacen:'BTIE005', nombre_almacen:'TIENDA TBC MALL VIVO CENTRO', sku_padre:241013200, sku_hijo:24101320061092, descripcion:'BOTELLA TERMICA MARVEL AVENGERS 500ML NEGRA', en_stock:18, en_transito:36, temporada:'Q225', clase:'BOTELLA' },
+  // BTIE007
+  { id:'m16', codigo_almacen:'BTIE007', nombre_almacen:'TIENDA TBC MALL ARAUCO ESTACION', sku_padre:290012045, sku_hijo:29001204561092, descripcion:'MUÑECA BARBIE FASHIONISTA #198 RUBIA VESTIDO ROSA', en_stock:6, en_transito:0, temporada:'Q225', clase:'MUÑECAS Y PELUCHES' },
+  { id:'m17', codigo_almacen:'BTIE007', nombre_almacen:'TIENDA TBC MALL ARAUCO ESTACION', sku_padre:280015600, sku_hijo:28001560061091, descripcion:'LEGO CLASSIC MEDIUM CREATIVE BRICK BOX 484 PCS', en_stock:2, en_transito:10, temporada:'TT25', clase:'JUGUETES DIDACTICOS' },
+  { id:'m18', codigo_almacen:'BTIE007', nombre_almacen:'TIENDA TBC MALL ARAUCO ESTACION', sku_padre:335013266, sku_hijo:33501326661091, descripcion:'(HKT008-BP139A) MOCHILA BACKPACK ROJO HELLO KITTY', en_stock:4, en_transito:0, temporada:'Q125', clase:'UTILES ESCOLARES' },
+  { id:'m19', codigo_almacen:'BTIE007', nombre_almacen:'TIENDA TBC MALL ARAUCO ESTACION', sku_padre:217010088, sku_hijo:21701008861091, descripcion:'POLERA MANGA CORTA NIÑA MINNIE MOUSE ROSA', en_stock:11, en_transito:22, temporada:'Q225', clase:'POLERA' },
+  { id:'m20', codigo_almacen:'BTIE007', nombre_almacen:'TIENDA TBC MALL ARAUCO ESTACION', sku_padre:275014022, sku_hijo:27501402261092, descripcion:'AUTO HOT WHEELS 1:64 EDICION ESPECIAL COLORES SURTIDOS', en_stock:32, en_transito:0, temporada:'TT25', clase:'AUTOS Y VEHICULOS A CONTROL REMOTO' },
+  // BTIE045
+  { id:'m21', codigo_almacen:'BTIE045', nombre_almacen:'TIENDA TBC PATIO OUTLET TEMUCO', sku_padre:271010026, sku_hijo:27101002661094, descripcion:'HLW0038 - FIGURA PACK (4" FIGURA ASSORTMENT B)', en_stock:8, en_transito:0, temporada:'TT24', clase:'FIGURAS DE ACCION Y COLECCIONABLES' },
+  { id:'m22', codigo_almacen:'BTIE045', nombre_almacen:'TIENDA TBC PATIO OUTLET TEMUCO', sku_padre:241013129, sku_hijo:24101312961094, descripcion:'(TITANIO) BOTELLA METALICA INSIDE OUT 2', en_stock:15, en_transito:30, temporada:'TT24', clase:'BOTELLA' },
+  { id:'m23', codigo_almacen:'BTIE045', nombre_almacen:'TIENDA TBC PATIO OUTLET TEMUCO', sku_padre:290012045, sku_hijo:29001204561094, descripcion:'MUÑECA BARBIE FASHIONISTA #198 RUBIA VESTIDO ROSA', en_stock:1, en_transito:12, temporada:'Q225', clase:'MUÑECAS Y PELUCHES' },
+  { id:'m24', codigo_almacen:'BTIE045', nombre_almacen:'TIENDA TBC PATIO OUTLET TEMUCO', sku_padre:217010060, sku_hijo:21701006061094, descripcion:'POLERON CON CAPUCHA NIÑO AVENGERS GRIS', en_stock:20, en_transito:0, temporada:'Q225', clase:'POLERON' },
+  { id:'m25', codigo_almacen:'BTIE045', nombre_almacen:'TIENDA TBC PATIO OUTLET TEMUCO', sku_padre:280015600, sku_hijo:28001560061094, descripcion:'LEGO CLASSIC MEDIUM CREATIVE BRICK BOX 484 PCS', en_stock:1051, en_transito:200, temporada:'TT25', clase:'JUGUETES DIDACTICOS' },
+];
+
+let data = [...MOCK_DATA];
+let sortCol = null, sortAsc = true;
+
+// ═══════════════════════════════════════════════
+//  AUTH
+// ═══════════════════════════════════════════════
+async function initAuth() {
+  const { data: { session } } = await sb.auth.getSession();
+  if (session) {
+    currentUser = session.user;
+    document.getElementById('userBadge').textContent = currentUser.email;
+  } else {
+    document.getElementById('userBadge').textContent = 'Vista previa';
+  }
+  return true;
+}
+
+async function logout() {
+  await sb.auth.signOut();
+  window.location.href = 'login.html';
+}
+
+// ═══════════════════════════════════════════════
+//  DATA LOADING
+// ═══════════════════════════════════════════════
+function transformStockRow(row, i) {
+  return {
+    id:             i,
+    codigo_almacen: row['Codigo Almacen'],
+    nombre_almacen: row['Nombre Almacen'],
+    sku_padre:      String(row['SKU Padre'] ?? ''),
+    sku_hijo:       String(row['SKU Hijo']  ?? ''),
+    descripcion:    row['Descripcion'],
+    en_stock:       Number(row['En Stock'])    || 0,
+    en_transito:    Number(row['En Transito']) || 0,
+    temporada:      row['Temporada'],
+    clase:          row['Clase'],
+  };
+}
+
+// ═══════════════════════════════════════════════
+//  CACHÉ LOCAL (localStorage, TTL en minutos)
+// ═══════════════════════════════════════════════
+const CACHE_TTL_MIN = 60;
+
+function cacheSet(key, value) {
+  try {
+    localStorage.setItem(key, JSON.stringify({ ts: Date.now(), value }));
+  } catch(e) {}
+}
+
+function cacheGet(key, ttlMin = CACHE_TTL_MIN) {
+  try {
+    const raw = localStorage.getItem(key);
+    if (!raw) return null;
+    const { ts, value } = JSON.parse(raw);
+    if (Date.now() - ts > ttlMin * 60 * 1000) return null;
+    return value;
+  } catch(e) { return null; }
+}
+
+function cacheClear(prefix) {
+  Object.keys(localStorage).filter(k => k.startsWith(prefix)).forEach(k => localStorage.removeItem(k));
+}
+
+
+function setDataSource(src, count) {
+  const dot = document.getElementById('dsDot');
+  const txt = document.getElementById('dsText');
+  if (src === 'supabase') {
+    dot.className = 'ds-dot ok';
+    txt.textContent = `Fuente: Supabase ✓ — ${count.toLocaleString('es-CL')} registros cargados`;
+  } else if (src === 'mock') {
+    dot.className = 'ds-dot warn';
+    txt.textContent = 'Fuente: Vista previa (datos de muestra) — Supabase no respondió';
+  } else {
+    dot.className = 'ds-dot err';
+    txt.textContent = 'Error de conexión — mostrando datos de muestra';
+  }
+}
+
+async function testConnection() {
+  const dot = document.getElementById('dsDot');
+  const txt = document.getElementById('dsText');
+  dot.className = 'ds-dot';
+  txt.textContent = 'Probando conexión...';
+
+  // Paso 1: ¿llega a Supabase? (public schema)
+  try {
+    await withTimeout(sb.from('recepciones').select('id', { count: 'exact', head: true }), 5000);
+    txt.textContent = 'API Supabase OK → probando bronze_layer...';
+  } catch(e) {
+    dot.className = 'ds-dot err';
+    txt.textContent = 'ERROR: No se puede conectar a Supabase (red o URL incorrecta)';
+    showToast('Sin red a Supabase', 'err'); return;
+  }
+
+  // Paso 2: ¿está expuesto bronze_layer?
+  try {
+    const res = await withTimeout(
+      sbBronze.from('raw_query_stock_tiendas_cl').select('*', { count: 'exact', head: true }),
+      8000
+    );
+    if (res.error) {
+      dot.className = 'ds-dot err';
+      txt.textContent = `ERROR bronze_layer: ${res.error.message} — TI debe exponer el schema en Supabase Dashboard → Settings → API`;
+      showToast('bronze_layer no accesible — ver instrucciones', 'err');
+    } else {
+      setDataSource('supabase', res.count || 0);
+      showToast('Conexión OK', 'ok');
+    }
+  } catch(e) {
+    dot.className = 'ds-dot err';
+    txt.textContent = 'TIMEOUT en bronze_layer — TI debe exponer el schema en Supabase Dashboard → Settings → API → Exposed schemas';
+    showToast('Timeout bronze_layer', 'err');
+  }
+}
+
+function forceRefresh() {
+  cacheClear('tbc_stock');
+  loadData();
+  showToast('Caché limpiado — recargando datos frescos');
+}
+
+async function loadData() {
+  const cacheKey = 'tbc_stock_all';
+  const cached = cacheGet(cacheKey, 60);
+  if (cached) {
+    data = cached;
+    render();
+    showToast(`${data.length.toLocaleString('es-CL')} registros (caché)`);
+    return;
+  }
+
+  const BATCH = 1000;
+  let allRows = [], from = 0, hasMore = true, firstRender = false;
+
+  while (hasMore) {
+    let rows, error;
+    try {
+      const res = await withTimeout(
+        sbBronze.from('raw_query_stock_tiendas_cl').select('*').range(from, from + BATCH - 1),
+        20000
+      );
+      rows = res.data; error = res.error;
+    } catch(e) {
+      showToast('Timeout — sin respuesta de Supabase, mostrando muestra', 'err');
+      if (!firstRender) { data = [...MOCK_DATA]; render(); }
+      setDataSource('err', 0);
+      return;
+    }
+
+    if (error) {
+      showToast('Error: ' + error.message + ' — mostrando muestra', 'err');
+      if (!firstRender) { data = [...MOCK_DATA]; render(); }
+      setDataSource('err', 0);
+      return;
+    }
+
+    allRows = allRows.concat(rows || []);
+    hasMore = (rows || []).length === BATCH;
+    from += BATCH;
+
+    if (!firstRender && allRows.length > 0) {
+      firstRender = true;
+      data = allRows.map(transformStockRow);
+      render();
+      showToast(`Cargando... ${allRows.length.toLocaleString('es-CL')} registros`);
+    }
+  }
+
+  if (allRows.length > 0) {
+    data = allRows.map(transformStockRow);
+    cacheSet(cacheKey, data);
+    render();
+    setDataSource('supabase', data.length);
+    showToast(`${data.length.toLocaleString('es-CL')} registros cargados`, 'ok');
+  } else {
+    showToast('Sin datos — mostrando muestra');
+    data = [...MOCK_DATA]; render();
+    setDataSource('mock', 0);
+  }
+}
+
+function withTimeout(promise, ms) {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), ms))
+  ]);
+}
+
+async function fetchBatch(almacen, clase, temporada, offset, limit) {
+  let query = sbBronze
+    .from('raw_query_stock_tiendas_cl')
+    .select('*')
+    .eq('Codigo Almacen', almacen)
+    .range(offset, offset + limit - 1);
+  if (clase)     query = query.eq('Clase', clase);
+  if (temporada) query = query.eq('Temporada', temporada);
+  try {
+    const res = await withTimeout(query, 12000);
+    return { rows: res.data, error: res.error };
+  } catch(e) {
+    return { rows: null, error: { message: e.message } };
+  }
+}
+
+// ═══════════════════════════════════════════════
+//  HELPERS
+// ═══════════════════════════════════════════════
+function getAlmacenes() {
+  const map = {};
+  data.forEach(r => { if (r.codigo_almacen) map[r.codigo_almacen] = r.nombre_almacen || r.codigo_almacen; });
+  return Object.entries(map).sort((a, b) => a[0].localeCompare(b[0]));
+}
+
+function getClases() {
+  return [...new Set(data.map(r => r.clase).filter(Boolean))].sort();
+}
+
+function getTemporadas() {
+  return [...new Set(data.map(r => r.temporada).filter(Boolean))].sort();
+}
+
+function stockClass(v) {
+  const n = Number(v);
+  if (n >= 10) return 'stock-high';
+  if (n >= 4)  return 'stock-med';
+  return 'stock-low';
+}
+
+function rowMatchesFilters(row) {
+  const ftipo = document.getElementById('filterTipo').value;
+  const fa    = document.getElementById('filterAlmacen').value;
+  const fc    = document.getElementById('filterClase').value;
+  const ft    = document.getElementById('filterTemporada').value;
+  const sb2   = document.getElementById('searchBox').value.toLowerCase().trim();
+  if (ftipo && !(row.codigo_almacen || '').startsWith(ftipo)) return false;
+  if (fa    && row.codigo_almacen !== fa) return false;
+  if (fc    && row.clase !== fc) return false;
+  if (ft    && row.temporada !== ft) return false;
+  if (sb2) {
+    const joined = [row.codigo_almacen, row.nombre_almacen, row.sku_padre,
+      row.sku_hijo, row.descripcion, row.temporada, row.clase]
+      .join(' ').toLowerCase();
+    if (!joined.includes(sb2)) return false;
+  }
+  return true;
+}
+
+// ═══════════════════════════════════════════════
+//  RENDER
+// ═══════════════════════════════════════════════
+const PAGE_SIZE = 500;
+let visibleCount = PAGE_SIZE;
+
+function render() {
+  updateSelects();
+  updateKPIs();
+  renderFlat();
+}
+
+function selectStore(alm) {
+  document.getElementById('filterAlmacen').value = alm;
+  applyFilters();
+}
+
+let viewMode = 'overview'; // 'overview' | 'all'
+let pageOffset = 0;
+const PAGE_FLAT = 500;
+
+function setViewMode(mode) {
+  viewMode = mode;
+  pageOffset = 0;
+  if (mode === 'overview') document.getElementById('filterAlmacen').value = '';
+  document.getElementById('btnOverview').style.fontWeight = mode === 'overview' ? '700' : '400';
+  document.getElementById('btnAll').style.fontWeight      = mode === 'all'      ? '700' : '400';
+  renderFlat();
+}
+
+function renderFlat() {
+  const content = document.getElementById('mainContent');
+  const fAlm    = document.getElementById('filterAlmacen').value;
+
+  // Sin tienda seleccionada → depende del modo
+  if (!fAlm && viewMode === 'overview') {
+    renderOverview(content);
+    return;
+  }
+
+  let rows = data.filter(rowMatchesFilters);
+  if (sortCol) {
+    rows.sort((a, b) => {
+      const va = a[sortCol] ?? '', vb = b[sortCol] ?? '';
+      if (!isNaN(Number(va)) && !isNaN(Number(vb))) return sortAsc ? Number(va)-Number(vb) : Number(vb)-Number(va);
+      return sortAsc ? String(va).localeCompare(String(vb)) : String(vb).localeCompare(String(va));
+    });
+  }
+
+  document.getElementById('resultCount').textContent =
+    `${rows.length.toLocaleString('es-CL')} registro${rows.length !== 1 ? 's' : ''}`;
+
+  if (!rows.length) {
+    content.innerHTML = `<div class="empty-msg" style="padding:40px;font-size:14px;">No hay registros con los filtros seleccionados.</div>`;
+    return;
+  }
+
+  const totalStock = rows.reduce((a, r) => a + (Number(r.en_stock)    || 0), 0);
+  const totalTrans = rows.reduce((a, r) => a + (Number(r.en_transito) || 0), 0);
+  const nombre     = rows[0].nombre_almacen || fAlm;
+
+  const mkTh = (key, lbl, extra='') =>
+    `<th ${extra} onclick="sortBy('${key}')" style="cursor:pointer;">${lbl}<span class="sort-icon">${sortCol===key?(sortAsc?'▲':'▼'):'⇅'}</span></th>`;
+
+  const paged   = rows.slice(0, pageOffset + PAGE_FLAT);
+  const hayMas  = paged.length < rows.length;
+  const titulo  = fAlm ? `&#128202; ${fAlm} &mdash; ${nombre}` : '&#128202; Todos los almacenes';
+  const footLbl = fAlm ? `TOTALES ${fAlm}` : 'TOTALES GENERALES';
+
+  content.innerHTML = `
+    <div style="padding:6px 0 8px;font-size:12px;color:#0077BB;font-weight:700;">
+      ${titulo}
+      <span style="font-weight:400;color:#555;margin-left:14px;">
+        ${rows.length.toLocaleString('es-CL')} SKUs &nbsp;|&nbsp;
+        Stock: <strong>${totalStock.toLocaleString('es-CL')}</strong> &nbsp;|&nbsp;
+        Tránsito: <strong>${totalTrans.toLocaleString('es-CL')}</strong>
+      </span>
+    </div>
+    <div class="table-card">
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            ${fAlm ? '' : `<th onclick="sortBy('codigo_almacen')" style="cursor:pointer">ALMACÉN<span class="sort-icon">${sortCol==='codigo_almacen'?(sortAsc?'▲':'▼'):'⇅'}</span></th>`}
+            ${mkTh('sku_padre','SKU PADRE')}
+            ${mkTh('sku_hijo','SKU HIJO')}
+            ${mkTh('descripcion','DESCRIPCIÓN','style="min-width:220px;text-align:left"')}
+            ${mkTh('en_stock','EN STOCK')}
+            ${mkTh('en_transito','EN TRÁNSITO')}
+            ${mkTh('temporada','TEMPORADA')}
+            ${mkTh('clase','CLASE')}
+          </tr></thead>
+          <tbody>${paged.map(r => renderRow(r, !fAlm)).join('')}</tbody>
+          <tfoot><tr class="totals-row">
+            <td colspan="${fAlm ? 3 : 4}" style="text-align:right;padding-right:12px;">${footLbl}</td>
+            <td class="num">${totalStock.toLocaleString('es-CL')}</td>
+            <td class="num">${totalTrans.toLocaleString('es-CL')}</td>
+            <td colspan="2"></td>
+          </tr></tfoot>
+        </table>
+      </div>
+      ${hayMas ? `<div style="text-align:center;padding:12px;background:white;border-top:1px solid #CCE9FF;">
+        <button class="btn btn-primary" onclick="loadMoreRows()">&#9660; Cargar más (${(rows.length - paged.length).toLocaleString('es-CL')} restantes)</button>
+        <div style="font-size:10.5px;color:#999;margin-top:5px;">Mostrando ${paged.length.toLocaleString('es-CL')} de ${rows.length.toLocaleString('es-CL')}</div>
+      </div>` : ''}
+    </div>`;
+}
+
+function renderOverview(content) {
+  const ftipo = document.getElementById('filterTipo').value;
+  const grupos = {};
+  data.forEach(r => {
+    if (ftipo && !(r.codigo_almacen||'').startsWith(ftipo)) return;
+    const k = r.codigo_almacen || '—';
+    if (!grupos[k]) grupos[k] = { rows: [], nombre: r.nombre_almacen || k };
+    grupos[k].rows.push(r);
+  });
+
+  const almCount = Object.keys(grupos).length;
+  const total    = Object.values(grupos).reduce((a, g) => a + g.rows.length, 0);
+  document.getElementById('resultCount').textContent =
+    `${total.toLocaleString('es-CL')} registros en ${almCount} almacenes — selecciona uno para ver detalle`;
+
+  if (!almCount) {
+    content.innerHTML = `<div class="empty-msg" style="padding:40px;font-size:14px;">Sin datos disponibles.</div>`;
+    return;
+  }
+
+  let bodyRows = '';
+  Object.keys(grupos).sort().forEach(alm => {
+    const g          = grupos[alm];
+    const totalStock = g.rows.reduce((a, r) => a + (Number(r.en_stock)    || 0), 0);
+    const totalTrans = g.rows.reduce((a, r) => a + (Number(r.en_transito) || 0), 0);
+    const skusPadres = new Set(g.rows.map(r => r.sku_padre)).size;
+    const skusHijos  = new Set(g.rows.map(r => r.sku_hijo)).size;
+    const totalUnidades = totalStock + totalTrans;
+    const capacidad = capacidadesTiendas[alm] || {};
+    const capacidadMinFmt = capacidad.min != null ? Number(capacidad.min).toLocaleString('es-CL') : '—';
+    const capacidadMaxFmt = capacidad.max != null ? Number(capacidad.max).toLocaleString('es-CL') : '—';
+    bodyRows += `<tr style="cursor:pointer;" onclick="selectStore('${alm}')" title="Ver stock de ${alm}">
+      <td style="font-weight:700;color:#0077BB;">${alm}</td>
+      <td style="text-align:left;">${g.nombre}</td>
+      <td class="num">${skusHijos.toLocaleString('es-CL')}</td>
+      <td class="num">${skusPadres.toLocaleString('es-CL')}</td>
+      <td class="num">${totalUnidades.toLocaleString('es-CL')}</td>
+      <td class="num ${stockClass(totalStock)}" style="font-weight:800;">${totalStock.toLocaleString('es-CL')}</td>
+      <td class="num ${totalTrans>0?'transito-ok':'transito-none'}" style="font-weight:800;">${totalTrans>0?totalTrans.toLocaleString('es-CL'):'—'}</td>
+      <td class="num">${capacidadMinFmt}</td>
+      <td class="num">${capacidadMaxFmt}</td>
+    </tr>`;
+  });
+
+  content.innerHTML = `
+    <div style="padding:6px 0 8px;font-size:11.5px;color:#0077BB;font-weight:700;">
+      &#128202; Resumen general &mdash; haz clic en una tienda para ver su stock
+    </div>
+    <div class="table-card">
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th>ALMACÉN</th><th style="text-align:left">NOMBRE</th>
+            <th>SKUs ÚNICOS</th><th>SKUs PADRES</th><th>TOTAL UNIDADES</th><th>EN STOCK</th><th>EN TRÁNSITO</th><th>CAP. ÓPTIMA</th><th>CAP. MÁXIMA</th>
+          </tr></thead>
+          <tbody>${bodyRows}</tbody>
+        </table>
+      </div>
+    </div>`;
+}
+
+function updateSelects() {
+  const almSel  = document.getElementById('filterAlmacen');
+  const claSel  = document.getElementById('filterClase');
+  const tempSel = document.getElementById('filterTemporada');
+  const curAlm  = almSel.value;
+  const curCla  = claSel.value;
+  const curTemp = tempSel.value;
+
+  almSel.innerHTML = '<option value="">— Todos —</option>';
+  getAlmacenes().forEach(([cod, nom]) => {
+    const o = document.createElement('option');
+    o.value = cod; o.textContent = `${cod} — ${nom}`;
+    if (cod === curAlm) o.selected = true;
+    almSel.appendChild(o);
+  });
+
+  claSel.innerHTML = '<option value="">— Todas —</option>';
+  getClases().forEach(c => {
+    const o = document.createElement('option');
+    o.value = c; o.textContent = c;
+    if (c === curCla) o.selected = true;
+    claSel.appendChild(o);
+  });
+
+  tempSel.innerHTML = '<option value="">— Todas —</option>';
+  getTemporadas().forEach(t => {
+    const o = document.createElement('option');
+    o.value = t; o.textContent = t;
+    if (t === curTemp) o.selected = true;
+    tempSel.appendChild(o);
+  });
+}
+
+function updateKPIs() {
+  const visible   = data.filter(rowMatchesFilters);
+  const totalStock    = visible.reduce((a, r) => a + (Number(r.en_stock)    || 0), 0);
+  const totalTransito = visible.reduce((a, r) => a + (Number(r.en_transito) || 0), 0);
+  const skus      = new Set(visible.map(r => r.sku_padre)).size;
+  const alm       = new Set(visible.map(r => r.codigo_almacen)).size;
+  const clases    = new Set(visible.map(r => r.clase)).size;
+  const criticos  = visible.filter(r => Number(r.en_stock) === 1).length;
+  const conTransito = visible.filter(r => Number(r.en_transito) > 0).length;
+
+  document.getElementById('kpiBar').innerHTML = `
+    <div class="kpi"><div class="kpi-val">${visible.length.toLocaleString('es-CL')}</div><div class="kpi-lbl">Registros</div></div>
+    <div class="kpi info"><div class="kpi-val">${alm}</div><div class="kpi-lbl">Almacenes</div></div>
+    <div class="kpi ok"><div class="kpi-val">${totalStock.toLocaleString('es-CL')}</div><div class="kpi-lbl">Unidades en Stock</div></div>
+    <div class="kpi" style="border-color:#99D4F5;"><div class="kpi-val" style="color:#0090DD;">${totalTransito.toLocaleString('es-CL')}</div><div class="kpi-lbl">En Tránsito</div></div>
+    <div class="kpi"><div class="kpi-val">${skus.toLocaleString('es-CL')}</div><div class="kpi-lbl">SKUs Únicos</div></div>
+    <div class="kpi"><div class="kpi-val">${clases}</div><div class="kpi-lbl">Clases</div></div>
+    <div class="kpi warn"><div class="kpi-val">${criticos}</div><div class="kpi-lbl">Stock = 1 (crítico)</div></div>
+  `;
+}
+
+function renderRow(row, showAlm = false) {
+  const descEsc  = (row.descripcion || '').replace(/"/g, '&quot;');
+  const transito = Number(row.en_transito) || 0;
+  const transitoCls = transito > 0 ? 'transito-ok' : 'transito-none';
+  const almCell  = showAlm
+    ? `<td style="font-weight:700;color:#0077BB;white-space:nowrap;" onclick="selectStore('${row.codigo_almacen}')" title="Ver solo ${row.codigo_almacen}" class="alm-link">${row.codigo_almacen || ''}</td>`
+    : '';
+  return `<tr>
+    ${almCell}
+    <td class="num">${row.sku_padre || ''}</td>
+    <td class="num">${row.sku_hijo  || ''}</td>
+    <td class="txt" style="min-width:220px;max-width:380px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:left;" title="${descEsc}">${row.descripcion || ''}</td>
+    <td class="num ${stockClass(row.en_stock)}" style="font-weight:800;">${row.en_stock ?? 0}</td>
+    <td class="num ${transitoCls}" style="font-weight:800;">${transito > 0 ? transito : '—'}</td>
+    <td style="font-size:11px;">${row.temporada || ''}</td>
+    <td><span class="badge-clase">${row.clase || ''}</span></td>
+  </tr>`;
+}
+
+function loadMoreRows() {
+  pageOffset += PAGE_FLAT;
+  renderFlat();
+}
+
+// ═══════════════════════════════════════════════
+//  SORT
+// ═══════════════════════════════════════════════
+function sortBy(col) {
+  if (sortCol === col) sortAsc = !sortAsc;
+  else { sortCol = col; sortAsc = true; }
+  renderFlat();
+}
+
+// ═══════════════════════════════════════════════
+//  FILTERS
+// ═══════════════════════════════════════════════
+function applyFilters() { pageOffset = 0; updateKPIs(); renderFlat(); }
+
+function expandAllStores() {
+  document.querySelectorAll('.store-section').forEach(sec => {
+    const body = sec.querySelector('.store-body');
+    sec.classList.remove('collapsed');
+    if (body) body.style.maxHeight = body.scrollHeight + 'px';
+  });
+}
+function collapseAllStores() {
+  document.querySelectorAll('.store-section').forEach(sec => {
+    const body = sec.querySelector('.store-body');
+    sec.classList.add('collapsed');
+    if (body) body.style.maxHeight = '0';
+  });
+}
+
+function clearFilters() {
+  document.getElementById('filterTipo').value     = '';
+  document.getElementById('filterAlmacen').value  = '';
+  document.getElementById('filterClase').value    = '';
+  document.getElementById('filterTemporada').value = '';
+  document.getElementById('searchBox').value      = '';
+  applyFilters();
+}
+
+// ═══════════════════════════════════════════════
+//  EXPORT CSV
+// ═══════════════════════════════════════════════
+function exportCSV() {
+  const almacen = document.getElementById('filterAlmacen').value || 'TODOS';
+  const visible = data.filter(rowMatchesFilters);
+  if (!visible.length) { showToast('Sin datos para exportar', 'err'); return; }
+
+  // Armar filas como objetos con los nombres de columna exactos
+  const wsData = visible.map(r => ({
+    'Codigo Almacen':  r.codigo_almacen,
+    'Nombre Almacen':  r.nombre_almacen,
+    'SKU Padre':       r.sku_padre,
+    'SKU Hijo':        r.sku_hijo,
+    'Descripcion':     r.descripcion,
+    'En Stock':        r.en_stock,
+    'En Transito':     r.en_transito,
+    'Temporada':       r.temporada,
+    'Clase':           r.clase,
+  }));
+
+  const wb = XLSX.utils.book_new();
+  const ws = XLSX.utils.json_to_sheet(wsData);
+
+  // Anchos de columna
+  ws['!cols'] = [
+    { wch: 14 }, { wch: 36 }, { wch: 14 }, { wch: 16 },
+    { wch: 48 }, { wch: 10 }, { wch: 12 }, { wch: 10 }, { wch: 32 },
+  ];
+
+  XLSX.utils.book_append_sheet(wb, ws, 'Stock');
+  XLSX.writeFile(wb, `STOCK_${almacen}_${new Date().toISOString().slice(0,10)}.xlsx`);
+  showToast(`${visible.length.toLocaleString('es-CL')} filas exportadas`);
+}
+
+// ═══════════════════════════════════════════════
+//  UI UTILITIES
+// ═══════════════════════════════════════════════
+function showLoading(msg) {
+  document.getElementById('loadingMsg').textContent = msg || 'Cargando...';
+  document.getElementById('loadingOverlay').style.display = 'flex';
+}
+function hideLoading() {
+  document.getElementById('loadingOverlay').style.display = 'none';
+}
+
+let toastTimer;
+function showToast(msg, type) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show ' + (type || '');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { t.className = 'toast'; }, 3000);
+}
+
+// ═══════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', async () => {
+  const d = new Date();
+  document.getElementById('headerDate').textContent =
+    `Actualizado: ${d.toLocaleDateString('es-CL', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}`;
+
+  // Show mock data immediately
+  data = [...MOCK_DATA];
+  render();
+  showToast('Cargando stock real...');
+
+  // Auth (non-blocking)
+  try {
+    const { data: { session } } = await Promise.race([
+      sb.auth.getSession(),
+      new Promise((_, r) => setTimeout(() => r(new Error('timeout')), 5000))
+    ]);
+    document.getElementById('userBadge').textContent = session ? session.user.email : 'Vista previa';
+  } catch(e) {
+    document.getElementById('userBadge').textContent = 'Vista previa';
+  }
+
+  // Load real data in background
+  try { await loadData(); } catch(e) { hideLoading(); }
+
+  // Auto-refresh silencioso cada 15 minutos
+  setInterval(() => { cacheClear('tbc_stock_all'); loadData(); }, 15 * 60 * 1000);
+});
+</script>
+</body>
+</html>

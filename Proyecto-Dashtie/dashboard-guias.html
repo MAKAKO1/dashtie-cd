@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guías Pendientes — The Brands Club</title>
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: Arial, sans-serif;
+    font-size: 12px;
+    background: #EBF6FF;
+    color: #1a1a1a;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    background: linear-gradient(135deg, #00AAFF 0%, #0090DD 100%);
+    color: white;
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 3px 12px rgba(0,150,255,.35);
+    position: sticky; top: 0; z-index: 100;
+  }
+  .header-left { display: flex; align-items: center; gap: 14px; }
+
+  .header-center {
+    flex: 1;
+    text-align: center;
+    font-family: 'Fredoka One', Arial;
+    font-size: 18px;
+    letter-spacing: 0.5px;
+    color: rgba(255,255,255,.95);
+    white-space: nowrap;
+  }
+
+  .logo-tbc {
+    background: white;
+    border-radius: 10px;
+    padding: 5px 11px 4px;
+    text-align: center;
+    line-height: 1.05;
+    box-shadow: 0 2px 6px rgba(0,0,0,.15);
+    min-width: 86px;
+  }
+  .logo-tbc img {
+    max-height: 44px;
+    display: block;
+    margin: 0 auto;
+  }
+  .logo-tbc .l-logo { display: block; font-family: 'Fredoka One', Arial; font-size: 15px; color: #00AAFF; }
+  .logo-tbc .l-the    { display: block; font-family: 'Fredoka One', Arial; font-size: 9px;  color: #00AAFF; letter-spacing: .5px; }
+  .logo-tbc .l-brands { display: block; font-family: 'Fredoka One', Arial; font-size: 15px; color: #00AAFF; }
+  .logo-tbc .l-club   { display: block; font-family: 'Fredoka One', Arial; font-size: 18px; color: #00AAFF; letter-spacing: 1px; }
+
+  .header-title { font-family: 'Fredoka One', Arial; font-size: 20px; letter-spacing: .5px; }
+  .header-date  { font-size: 11px; opacity: .85; margin-top: 1px; }
+  .header-actions { display: flex; gap: 8px; align-items: center; }
+  .user-badge {
+    font-size: 10.5px; opacity: .9;
+    background: rgba(255,255,255,.25);
+    padding: 4px 10px; border-radius: 20px;
+  }
+  .btn {
+    background: rgba(255,255,255,.2);
+    color: white; border: 1.5px solid rgba(255,255,255,.4);
+    border-radius: 20px; padding: 5px 14px;
+    font-size: 11.5px; cursor: pointer; font-weight: 700;
+    transition: background .15s;
+  }
+  .btn:hover { background: rgba(255,255,255,.3); }
+
+  /* ── NAV TABS ── */
+  .nav-tabs {
+    background: #0090DD;
+    display: flex;
+    padding: 0 24px;
+    border-bottom: 3px solid #007ABB;
+  }
+  .nav-tab {
+    display: inline-block;
+    padding: 9px 20px;
+    color: rgba(255,255,255,.65);
+    text-decoration: none;
+    font-family: 'Fredoka One', Arial;
+    font-size: 13px;
+    letter-spacing: .4px;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -3px;
+    transition: color .15s, border-color .15s;
+  }
+  .nav-tab:hover { color: rgba(255,255,255,.9); }
+  .nav-tab.active { color: white; border-bottom-color: white; }
+
+  /* ── TOOLBAR ── */
+  .toolbar {
+    background: white;
+    padding: 10px 24px;
+    display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+    border-bottom: 2px solid #CCE9FF;
+    box-shadow: 0 1px 4px rgba(0,150,255,.08);
+  }
+  .toolbar label { font-weight: 700; color: #0077BB; font-size: 11px; text-transform: uppercase; letter-spacing: .4px; }
+  .toolbar select, .toolbar input[type=text], .toolbar input[type=date] {
+    border: 2px solid #CCE9FF; border-radius: 8px;
+    padding: 5px 10px; font-size: 12px; color: #1a1a1a;
+    outline: none; background: white;
+  }
+  .toolbar select:focus, .toolbar input:focus { border-color: #00AAFF; }
+  .btn-toolbar {
+    background: linear-gradient(135deg, #00AAFF, #0088DD);
+    color: white; border: none; border-radius: 20px;
+    padding: 6px 16px; font-size: 12px; font-weight: 700;
+    cursor: pointer; transition: opacity .15s;
+  }
+  .btn-toolbar:hover { opacity: .85; }
+  .spacer { flex: 1; }
+  .count-badge {
+    font-size: 11px; color: #0077BB;
+    background: #E0F4FF; padding: 4px 12px; border-radius: 20px; font-weight: 700;
+  }
+
+  /* ── KPI BAR ── */
+  .kpi-bar {
+    display: flex; gap: 12px; padding: 12px 24px;
+    background: white; border-bottom: 1px solid #CCE9FF;
+    flex-wrap: wrap;
+  }
+  .kpi {
+    background: #EBF6FF; border-radius: 10px;
+    padding: 8px 16px; min-width: 120px;
+    border: 1.5px solid #CCE9FF;
+  }
+  .kpi-label { font-size: 10px; color: #0077BB; text-transform: uppercase; letter-spacing: .5px; font-weight: 700; }
+  .kpi-value { font-family: 'Fredoka One', Arial; font-size: 22px; color: #00AAFF; line-height: 1.1; margin-top: 2px; }
+  .kpi-sub   { font-size: 10px; color: #888; margin-top: 1px; }
+  .kpi.kpi-warn  { background: #FFF3CD; border-color: #FFBB00; }
+  .kpi.kpi-warn  .kpi-value { color: #B8860B; }
+  .kpi.kpi-alert { background: #FFE8E8; border-color: #FFAAAA; }
+  .kpi.kpi-alert .kpi-value { color: #c0392b; }
+
+  /* ── TABLE ── */
+  .table-wrap {
+    padding: 16px 24px;
+    overflow-x: auto;
+  }
+  table {
+    width: 100%; border-collapse: collapse;
+    background: white; border-radius: 12px; overflow: hidden;
+    box-shadow: 0 2px 12px rgba(0,100,200,.1);
+    font-size: 11.5px;
+  }
+  thead th {
+    background: linear-gradient(135deg, #00AAFF, #0088DD);
+    color: white; padding: 9px 10px;
+    text-align: left; font-size: 10.5px;
+    text-transform: uppercase; letter-spacing: .4px;
+    white-space: nowrap; position: sticky; top: 0;
+    cursor: pointer; user-select: none;
+  }
+  thead th:hover { background: linear-gradient(135deg, #22BBFF, #0099EE); }
+  thead th.sorted-asc::after  { content: ' ▲'; opacity: .8; }
+  thead th.sorted-desc::after { content: ' ▼'; opacity: .8; }
+  tbody tr { border-bottom: 1px solid #EBF6FF; }
+  tbody tr:hover { background: #F5FBFF; }
+  td { padding: 7px 10px; white-space: nowrap; }
+  td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .td-pending { background: #FFF3CD; color: #856404; font-weight: 700; border-radius: 6px; padding: 2px 8px; text-align: center; display: inline-block; }
+  .td-zero    { color: #bbb; }
+  .td-alert   { background: #FFE8E8; color: #c0392b; font-weight: 700; border-radius: 6px; padding: 2px 8px; display: inline-block; }
+
+  /* ── TOTALS ROW ── */
+  tfoot td { background: #E0F4FF; font-weight: 700; color: #0055AA; padding: 7px 10px; border-top: 2px solid #00AAFF; }
+
+  /* ── DATA SOURCE BAR ── */
+  .ds-bar { background:#f4f8fb; border-bottom:1px solid #dde8f0; padding:5px 24px; display:flex; align-items:center; gap:10px; font-size:11px; color:#555; }
+  .ds-dot { width:9px; height:9px; border-radius:50%; background:#aaa; flex-shrink:0; transition:background .3s; }
+  .ds-dot.ok   { background:#27ae60; box-shadow:0 0 5px rgba(39,174,96,.5); }
+  .ds-dot.warn { background:#f39c12; }
+  .ds-dot.err  { background:#e74c3c; }
+  .ds-btn { background:white; border:1px solid #ccd6e0; border-radius:4px; padding:2px 9px; cursor:pointer; font-size:10.5px; color:#0077BB; }
+  .ds-btn:hover { background:#e8f4ff; }
+
+  /* ── TOAST ── */
+  .toast {
+    position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+    background: #1a1a1a; color: white; padding: 10px 24px;
+    border-radius: 30px; font-size: 12px; z-index: 9999;
+    opacity: 0; transition: opacity .3s; pointer-events: none;
+  }
+  .toast.show { opacity: 1; }
+  .toast.err  { background: #c0392b; }
+
+  /* ── EMPTY STATE ── */
+  .empty-state {
+    text-align: center; padding: 60px 20px; color: #aaa;
+  }
+  .empty-state .icon { font-size: 48px; margin-bottom: 12px; }
+  .empty-state p { font-size: 13px; }
+
+  /* ── LOAD MORE ── */
+  .load-more-wrap { text-align: center; padding: 16px; }
+
+  @media print {
+    .toolbar, .header-actions, .btn, .nav-tabs, .load-more-wrap { display: none; }
+    body { background: white; }
+    .table-wrap { padding: 0; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══════════ HEADER ══════════ -->
+<div class="header">
+  <div class="header-left">
+    <div class="logo-tbc">
+      <img src="logo.png" alt="La Magia De Ser Tu" onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
+      <span class="l-logo" style="display:none;">La Magia De Ser Tu</span>
+    </div>
+    <div>
+      <div class="header-title">&#128666; Guías Pendientes de Recepción</div>
+      <div class="header-date" id="headerDate"></div>
+    </div>
+  </div>
+  <div class="header-center">La Magia De Ser Tu</div>
+  <div class="header-actions">
+    <span class="user-badge" id="userBadge">&#128100; cargando...</span>
+    <button class="btn" onclick="forceRefresh()" title="Limpiar caché y recargar datos frescos">&#8635; Actualizar</button>
+    <button class="btn" onclick="signOut()">&#x1F511; Salir</button>
+  </div>
+</div>
+
+<!-- ══════════ NAV TABS ══════════ -->
+<div class="nav-tabs">
+  <a href="dashboard-recepciones.html" class="nav-tab">&#128230; Recepciones</a>
+  <a href="dashboard-stock.html"       class="nav-tab">&#128202; Stock x Tienda</a>
+  <a href="dashboard-bolsas.html"      class="nav-tab">&#128717; Bolsas</a>
+  <a href="dashboard-guias.html"       class="nav-tab active">&#128221; Guías</a>
+</div>
+
+<!-- ══════════ DATA SOURCE ══════════ -->
+<div class="ds-bar">
+  <span class="ds-dot warn" id="dsDot"></span>
+  <span id="dsText">Fuente: Vista previa (datos de muestra)</span>
+  <button class="ds-btn" onclick="testConnection()">&#128246; Probar conexión</button>
+</div>
+
+<!-- ══════════ TOOLBAR ══════════ -->
+<div class="toolbar">
+  <label>Fecha guía:</label>
+  <input type="date" id="filterFechaDesde" onchange="applyFilters()" title="Desde">
+  <span style="color:#888;font-size:11px;">—</span>
+  <input type="date" id="filterFechaHasta" onchange="applyFilters()" title="Hasta">
+  <button class="btn-toolbar" onclick="reloadByDate()" title="Consultar Supabase con rango de fecha seleccionado" style="background:#0090DD;color:white;border:none;">&#8635; Cargar fecha</button>
+
+  <label style="margin-left:6px;">&#128269; Bodega:</label>
+  <select id="filterBodega" onchange="applyFilters()">
+    <option value="">— Todas —</option>
+  </select>
+
+  <label>Origen:</label>
+  <select id="filterOrigen" onchange="applyFilters()">
+    <option value="">— Todos —</option>
+  </select>
+
+  <label>Buscar:</label>
+  <input type="text" id="filterSearch" placeholder="guía, bodega..." oninput="applyFilters()" style="width:140px">
+
+  <button class="btn-toolbar" onclick="clearAllFilters()">&#10005; Limpiar</button>
+
+  <div class="spacer"></div>
+  <span class="count-badge" id="countBadge">— guías</span>
+  <button class="btn-toolbar" onclick="exportCSV()">&#11015; Exportar Excel</button>
+</div>
+
+<!-- ══════════ KPI BAR ══════════ -->
+<div class="kpi-bar" id="kpiBar">
+  <div class="kpi"><div class="kpi-label">Guías Pendientes</div><div class="kpi-value" id="kpiGuias">—</div></div>
+  <div class="kpi"><div class="kpi-label">Bodegas Afectadas</div><div class="kpi-value" id="kpiBodegas">—</div></div>
+  <div class="kpi kpi-warn"><div class="kpi-label">Unidades Pendientes</div><div class="kpi-value" id="kpiUnidades">—</div></div>
+  <div class="kpi kpi-alert"><div class="kpi-label">Días Máx. en Tránsito</div><div class="kpi-value" id="kpiDias">—</div></div>
+</div>
+
+<!-- ══════════ TABLE ══════════ -->
+<div class="table-wrap">
+  <div id="emptyState" class="empty-state" style="display:none">
+    <div class="icon">&#128666;</div>
+    <p>No hay guías pendientes para los filtros seleccionados.</p>
+  </div>
+  <table id="mainTable">
+    <thead id="tableHead"></thead>
+    <tbody id="tableBody"></tbody>
+    <tfoot id="tableFoot"></tfoot>
+  </table>
+</div>
+
+<div class="load-more-wrap" id="loadMoreWrap" style="display:none">
+  <button class="btn-toolbar" onclick="loadMore()">&#8595; Cargar más filas</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="config.js"></script>
+<script>
+// ── Caché local ──
+function cacheSet(key, value) {
+  try { localStorage.setItem(key, JSON.stringify({ ts: Date.now(), value })); } catch(e) {}
+}
+function cacheGet(key, ttlMin = 30) {
+  try {
+    const raw = localStorage.getItem(key);
+    if (!raw) return null;
+    const { ts, value } = JSON.parse(raw);
+    if (Date.now() - ts > ttlMin * 60 * 1000) return null;
+    return value;
+  } catch(e) { return null; }
+}
+function cacheClear(prefix) {
+  Object.keys(localStorage).filter(k => k.startsWith(prefix)).forEach(k => localStorage.removeItem(k));
+}
+
+const sb       = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const sbBronze = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, { db: { schema: 'bronze_layer' }, auth: { storageKey: 'tbc-bronze-auth', persistSession: false, autoRefreshToken: false } });
+
+const PAGE_SIZE = 500;
+let allData     = [];
+let filtered    = [];
+let displayed   = 0;
+let sortCol     = null;
+let sortDir     = 1;
+
+// ── Columnas dinámicas detectadas del primer fetch ──
+let COLS = [];
+
+// Tiendas excluidas de la vista de guías (Corner Ripley)
+const EXCLUIR_TIENDAS = [
+  'CORNER RIPLEY COSTANERA CENTER',
+  'CORNER RIPLEY PARQUE ARAUCO',
+  'CORNER RIPLEY MARINA ARAUCO',
+];
+
+// ── Init ──
+(async () => {
+  document.getElementById('headerDate').textContent =
+    new Date().toLocaleDateString('es-CL', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+
+  // Fecha por defecto desde 2026
+  document.getElementById('filterFechaDesde').value = '2026-01-01';
+
+  // Show mock immediately
+  useMockData();
+
+  // Auth (non-blocking)
+  try {
+    const { data: { session } } = await Promise.race([
+      sb.auth.getSession(),
+      new Promise((_, r) => setTimeout(() => r(new Error('timeout')), 5000))
+    ]);
+    document.getElementById('userBadge').textContent = session ? session.user.email : 'Vista previa';
+  } catch(e) {
+    document.getElementById('userBadge').textContent = 'Vista previa';
+  }
+
+  // Load real data in background
+  try { await loadData(); } catch(e) {}
+
+  // Auto-refresh silencioso cada 15 minutos
+  setInterval(() => { cacheClear('tbc_guias'); loadData(); }, 15 * 60 * 1000);
+})();
+
+async function signOut() {
+  await sb.auth.signOut();
+  window.location.href = 'login.html';
+}
+
+function forceRefresh() {
+  cacheClear('tbc_guias');
+  document.getElementById('filterFechaDesde').value = '';
+  document.getElementById('filterFechaHasta').value = '';
+  loadData();
+  showToast('Caché limpiado — recargando');
+}
+
+function clearAllFilters() {
+  document.getElementById('filterBodega').value    = '';
+  document.getElementById('filterOrigen').value    = '';
+  document.getElementById('filterSearch').value    = '';
+  document.getElementById('filterFechaDesde').value = '';
+  document.getElementById('filterFechaHasta').value = '';
+  applyFilters();
+}
+
+async function reloadByDate() {
+  if (allData.length === 0) { await loadData(); return; }
+  applyFilters();
+  showToast('Filtro de fecha aplicado');
+}
+
+function withTimeout(promise, ms) {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), ms))
+  ]);
+}
+
+function setDataSource(src, count) {
+  const dot = document.getElementById('dsDot');
+  const txt = document.getElementById('dsText');
+  if (src === 'supabase') {
+    dot.className = 'ds-dot ok';
+    txt.textContent = `Fuente: Supabase ✓ — ${count.toLocaleString('es-CL')} guías cargadas`;
+  } else if (src === 'mock') {
+    dot.className = 'ds-dot warn';
+    txt.textContent = 'Fuente: Vista previa (datos de muestra) — Supabase no respondió';
+  } else {
+    dot.className = 'ds-dot err';
+    txt.textContent = 'Error de conexión — mostrando datos de muestra';
+  }
+}
+
+async function testConnection() {
+  const dot = document.getElementById('dsDot');
+  const txt = document.getElementById('dsText');
+  dot.className = 'ds-dot';
+  txt.textContent = 'Probando conexión...';
+
+  try {
+    await withTimeout(sb.from('recepciones').select('id', { count: 'exact', head: true }), 5000);
+    txt.textContent = 'API Supabase OK → probando bronze_layer...';
+  } catch(e) {
+    dot.className = 'ds-dot err';
+    txt.textContent = 'ERROR: No se puede conectar a Supabase';
+    showToast('Sin red a Supabase', 'err'); return;
+  }
+
+  try {
+    const res = await withTimeout(
+      sbBronze.from('raw_query_guias_no_recepcionadas_cl').select('*', { count: 'exact', head: true }),
+      8000
+    );
+    if (res.error) {
+      dot.className = 'ds-dot err';
+      txt.textContent = `ERROR bronze_layer: ${res.error.message} — TI debe agregar "bronze_layer" en Supabase → Settings → API → Exposed schemas`;
+      showToast('bronze_layer no accesible', 'err');
+    } else {
+      setDataSource('supabase', res.count || 0);
+      showToast('Conexión OK', 'ok');
+    }
+  } catch(e) {
+    dot.className = 'ds-dot err';
+    txt.textContent = 'TIMEOUT bronze_layer — TI debe agregar "bronze_layer" en Supabase → Settings → API → Exposed schemas';
+    showToast('Timeout bronze_layer', 'err');
+  }
+}
+
+// ── Cargar datos ──
+async function loadData() {
+  const cacheKey = 'tbc_guias';
+  const cached = cacheGet(cacheKey, 30);
+  if (cached) {
+    COLS = cached.cols;
+    allData = cached.rows;
+    buildUI();
+    showToast(`${allData.length.toLocaleString('es-CL')} guías (caché)`);
+    return;
+  }
+
+  const BATCH = 1000;
+  let allRows = [], from = 0, hasMore = true;
+
+  while (hasMore) {
+    let rows, error;
+    try {
+      const res = await withTimeout(
+        sbBronze.from('raw_query_guias_no_recepcionadas_cl').select('*').range(from, from + BATCH - 1),
+        20000
+      );
+      rows = res.data; error = res.error;
+    } catch(e) {
+      showToast('Sin respuesta — mostrando muestra', 'err');
+      return;
+    }
+
+    if (error) {
+      showToast('Error: ' + error.message + ' — mostrando muestra', 'err');
+      return;
+    }
+
+    allRows = allRows.concat(rows || []);
+    hasMore = (rows || []).length === BATCH;
+    from += BATCH;
+  }
+
+  if (allRows.length === 0) {
+    showToast('Sin guías pendientes');
+    return;
+  }
+
+  COLS = Object.keys(allRows[0]);
+  allData = allRows;
+  cacheSet(cacheKey, { cols: COLS, rows: allData });
+  buildUI();
+  setDataSource('supabase', allRows.length);
+  showToast(`${allRows.length.toLocaleString('es-CL')} guías cargadas`, 'ok');
+}
+
+function buildUI() {
+  buildFilters();
+  buildTableHeader();
+  applyFilters();
+}
+
+// ── Detectar y poblar filtros ──
+function buildFilters() {
+  const bodegaCol  = COLS.find(c => /^bodega$/i.test(c) && !/origen/i.test(c)) || COLS.find(c => /bodega/i.test(c) && !/origen/i.test(c));
+  const origenCol  = COLS.find(c => /origen/i.test(c));
+
+  populateSelect('filterBodega', bodegaCol);
+  populateSelect('filterOrigen',  origenCol);
+}
+
+function populateSelect(id, col) {
+  const sel = document.getElementById(id);
+  const prev = sel.value;
+  while (sel.options.length > 1) sel.remove(1);
+  if (!col) return;
+  const vals = [...new Set(allData.map(r => r[col]).filter(Boolean))].sort();
+  vals.forEach(v => { const o = document.createElement('option'); o.value = v; o.textContent = v; sel.appendChild(o); });
+  if (vals.includes(prev)) sel.value = prev;
+}
+
+// ── Build table header (columnas dinámicas) ──
+function buildTableHeader() {
+  const head = document.getElementById('tableHead');
+  if (!COLS.length) { head.innerHTML = ''; return; }
+  const tr = document.createElement('tr');
+  COLS.forEach((col, i) => {
+    const th = document.createElement('th');
+    th.textContent = col;
+    th.dataset.col = i;
+    th.onclick = () => sortBy(i);
+    tr.appendChild(th);
+  });
+  head.innerHTML = '';
+  head.appendChild(tr);
+}
+
+// Detecta la columna de fecha de guía dinámicamente
+function getFechaCol() {
+  return COLS.find(c => /fecha/i.test(c) && (/guia/i.test(c) || /envio/i.test(c)))
+      || COLS.find(c => /fecha/i.test(c));
+}
+
+// ── Aplicar filtros ──
+function applyFilters() {
+  const bodegaCol  = COLS.find(c => /^bodega$/i.test(c) && !/origen/i.test(c)) || COLS.find(c => /bodega/i.test(c) && !/origen/i.test(c));
+  const origenCol  = COLS.find(c => /origen/i.test(c));
+  const fechaCol   = getFechaCol();
+  const fBodega    = document.getElementById('filterBodega').value;
+  const fOrigen    = document.getElementById('filterOrigen').value;
+  const fSearch    = document.getElementById('filterSearch').value.trim().toLowerCase();
+  const fDesde     = document.getElementById('filterFechaDesde').value;
+  const fHasta     = document.getElementById('filterFechaHasta').value;
+
+  filtered = allData.filter(row => {
+    // Excluir Corner Ripley
+    const rowStr = COLS.map(c => String(row[c] ?? '').toUpperCase()).join(' ');
+    if (EXCLUIR_TIENDAS.some(t => rowStr.includes(t))) return false;
+
+    if (bodegaCol && fBodega && row[bodegaCol] !== fBodega) return false;
+    if (origenCol && fOrigen && row[origenCol] !== fOrigen) return false;
+    if (fechaCol && fDesde) {
+      const d = String(row[fechaCol] ?? '').slice(0, 10);
+      if (!d || d < fDesde) return false;
+    }
+    if (fechaCol && fHasta) {
+      const d = String(row[fechaCol] ?? '').slice(0, 10);
+      if (!d || d > fHasta) return false;
+    }
+    if (fSearch) {
+      const str = COLS.map(c => String(row[c] ?? '')).join(' ').toLowerCase();
+      if (!str.includes(fSearch)) return false;
+    }
+    return true;
+  });
+
+  if (sortCol !== null) {
+    filtered.sort((a, b) => {
+      const va = a[COLS[sortCol]], vb = b[COLS[sortCol]];
+      return sortDir * (va < vb ? -1 : va > vb ? 1 : 0);
+    });
+  }
+
+  updateKPIs();
+  displayed = 0;
+  renderRows(true);
+}
+
+// ── KPIs ──
+function updateKPIs() {
+  document.getElementById('kpiGuias').textContent    = filtered.length.toLocaleString('es-CL');
+  const bodegaCol = COLS.find(c => /^bodega$/i.test(c) && !/origen/i.test(c)) || COLS.find(c => /bodega/i.test(c) && !/origen/i.test(c));
+  document.getElementById('kpiBodegas').textContent  = bodegaCol ? new Set(filtered.map(r => r[bodegaCol])).size : '—';
+  document.getElementById('countBadge').textContent  = filtered.length.toLocaleString('es-CL') + ' guías';
+
+  // Unidades pendientes — prioriza columna con "pendiente" en el nombre
+  const cantCol = COLS.find(c => /pendiente/i.test(c))
+               || COLS.find(c => /^cant\b/i.test(c) && !/enviada/i.test(c))
+               || COLS.find(c => /cant/i.test(c));
+  if (cantCol) {
+    const total = filtered.reduce((s, r) => s + (Number(r[cantCol]) || 0), 0);
+    document.getElementById('kpiUnidades').textContent = total.toLocaleString('es-CL');
+  }
+
+  // Días en tránsito máx (busca columna "dias" o "days")
+  const diasCol = COLS.find(c => /dias/i.test(c) || /days/i.test(c));
+  if (diasCol) {
+    const max = Math.max(...filtered.map(r => Number(r[diasCol]) || 0));
+    document.getElementById('kpiDias').textContent = max > 0 ? max : '—';
+  } else {
+    document.getElementById('kpiDias').textContent = '—';
+  }
+}
+
+// ── Render rows ──
+function renderRows(reset) {
+  const tbody = document.getElementById('tableBody');
+  const tfoot = document.getElementById('tableFoot');
+
+  if (reset) tbody.innerHTML = '';
+
+  const chunk = filtered.slice(displayed, displayed + PAGE_SIZE);
+  chunk.forEach(row => {
+    const tr = document.createElement('tr');
+    COLS.forEach(col => {
+      const td = document.createElement('td');
+      const val = row[col];
+      const isNum = typeof val === 'number';
+      const numVal = Number(val);
+
+      if (isNum || (!isNaN(numVal) && val !== null && val !== '')) {
+        td.className = 'num';
+        if (numVal > 0 && /pendiente|cant/i.test(col)) {
+          td.innerHTML = `<span class="td-pending">${numVal.toLocaleString('es-CL')}</span>`;
+        } else if (numVal === 0) {
+          td.innerHTML = `<span class="td-zero">—</span>`;
+        } else {
+          td.textContent = numVal.toLocaleString('es-CL');
+        }
+      } else {
+        td.textContent = val ?? '';
+      }
+      tr.appendChild(td);
+    });
+    tbody.appendChild(tr);
+  });
+  displayed += chunk.length;
+
+  // Totals — solo se recalcula al resetear (no acumula)
+  if (reset) {
+    const cantCol = COLS.find(c => /pendiente/i.test(c))
+                 || COLS.find(c => /^cant\b/i.test(c) && !/enviada/i.test(c))
+                 || COLS.find(c => /cant/i.test(c));
+    tfoot.innerHTML = '';
+    if (cantCol) {
+      const totalPend = filtered.reduce((s, r) => s + (Number(r[cantCol]) || 0), 0);
+      const enviadaCol = COLS.find(c => /enviada/i.test(c));
+      const totalEnv   = enviadaCol ? filtered.reduce((s, r) => s + (Number(r[enviadaCol]) || 0), 0) : null;
+      const ftRow = document.createElement('tr');
+      COLS.forEach(col => {
+        const td = document.createElement('td');
+        if (col === COLS[0])         { td.textContent = `TOTAL (${filtered.length} guías)`; }
+        else if (col === cantCol)    { td.textContent = totalPend.toLocaleString('es-CL'); td.className = 'num'; }
+        else if (col === enviadaCol && totalEnv !== null) { td.textContent = totalEnv.toLocaleString('es-CL'); td.className = 'num'; }
+        ftRow.appendChild(td);
+      });
+      tfoot.appendChild(ftRow);
+    }
+  }
+
+  document.getElementById('emptyState').style.display = filtered.length === 0 ? '' : 'none';
+  document.getElementById('mainTable').style.display  = filtered.length === 0 ? 'none' : '';
+  document.getElementById('loadMoreWrap').style.display = displayed < filtered.length ? '' : 'none';
+}
+
+function loadMore() { renderRows(false); }
+
+// ── Sort ──
+function sortBy(colIdx) {
+  if (sortCol === colIdx) sortDir *= -1; else { sortCol = colIdx; sortDir = 1; }
+  document.querySelectorAll('thead th').forEach((th, i) => {
+    th.classList.remove('sorted-asc', 'sorted-desc');
+    if (i === colIdx) th.classList.add(sortDir === 1 ? 'sorted-asc' : 'sorted-desc');
+  });
+  applyFilters();
+}
+
+// ── Export CSV ──
+function exportCSV() {
+  if (!filtered.length) { showToast('Sin datos para exportar', 'err'); return; }
+
+  // Usar columnas originales de la query (COLS detectado dinámicamente)
+  const wsData = filtered.map(row => {
+    const obj = {};
+    COLS.forEach(c => { obj[c] = row[c] ?? ''; });
+    return obj;
+  });
+
+  const wb = XLSX.utils.book_new();
+  const ws = XLSX.utils.json_to_sheet(wsData, { header: COLS });
+
+  // Ancho automático por columna
+  ws['!cols'] = COLS.map(c => ({ wch: Math.min(Math.max(c.length + 2, 12), 40) }));
+
+  XLSX.utils.book_append_sheet(wb, ws, 'Guias Pendientes');
+  XLSX.writeFile(wb, `GUIAS_PENDIENTES_${new Date().toISOString().slice(0,10)}.xlsx`);
+  showToast(`${filtered.length.toLocaleString('es-CL')} filas exportadas`);
+}
+
+// ── Mock data (mientras TI habilita permisos) ──
+function useMockData() {
+  COLS = ['BODEGA','BODEGA ORIGEN','GUIA ENVIO CD','FECHA GUIA ENVIO','CANT ENVIADA','CANT PENDIENTE','DIAS EN TRANSITO','ESTADO'];
+  allData = [
+    { 'BODEGA':'BTRT045','BODEGA ORIGEN':'BBCE900','GUIA ENVIO CD':'20044060','FECHA GUIA ENVIO':'2026-04-30','CANT ENVIADA':50,'CANT PENDIENTE':50,'DIAS EN TRANSITO':5,'ESTADO':'PENDIENTE' },
+    { 'BODEGA':'BTRT007','BODEGA ORIGEN':'BBCE900','GUIA ENVIO CD':'20044061','FECHA GUIA ENVIO':'2026-04-29','CANT ENVIADA':120,'CANT PENDIENTE':120,'DIAS EN TRANSITO':6,'ESTADO':'PENDIENTE' },
+    { 'BODEGA':'BTRT044','BODEGA ORIGEN':'BBCE900','GUIA ENVIO CD':'20044055','FECHA GUIA ENVIO':'2026-04-28','CANT ENVIADA':34,'CANT PENDIENTE':34,'DIAS EN TRANSITO':7,'ESTADO':'PENDIENTE' },
+    { 'BODEGA':'BTRT019','BODEGA ORIGEN':'BBCE900','GUIA ENVIO CD':'20044050','FECHA GUIA ENVIO':'2026-04-27','CANT ENVIADA':200,'CANT PENDIENTE':200,'DIAS EN TRANSITO':8,'ESTADO':'PENDIENTE' },
+    { 'BODEGA':'BTRT002','BODEGA ORIGEN':'BBCE900','GUIA ENVIO CD':'20044048','FECHA GUIA ENVIO':'2026-04-26','CANT ENVIADA':88,'CANT PENDIENTE':88,'DIAS EN TRANSITO':9,'ESTADO':'PENDIENTE' },
+  ];
+  showToast('Modo vista previa — datos reales disponibles cuando TI habilite permisos', 'err');
+  buildUI();
+}
+
+// ── Toast ──
+function showToast(msg, type) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'toast' + (type === 'err' ? ' err' : '') + (msg ? ' show' : '');
+  if (msg && type !== 'err') setTimeout(() => { el.classList.remove('show'); }, 2500);
+}
+</script>
+</body>
+</html>

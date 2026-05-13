@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stock Bolsas — The Brands Club</title>
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: Arial, sans-serif;
+    font-size: 12px;
+    background: #EBF6FF;
+    color: #1a1a1a;
+  }
+
+  .header {
+    background: linear-gradient(135deg, #00AAFF 0%, #0090DD 100%);
+    color: white;
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 3px 12px rgba(0,150,255,.35);
+    position: sticky; top: 0; z-index: 100;
+  }
+  .header-left { display: flex; align-items: center; gap: 14px; }
+  .header-center {
+    flex: 1;
+    text-align: center;
+    font-family: 'Fredoka One', Arial;
+    font-size: 18px;
+    letter-spacing: 0.5px;
+    color: rgba(255,255,255,.95);
+    white-space: nowrap;
+  }
+
+  .logo-tbc {
+    background: white; border-radius: 10px;
+    padding: 5px 11px 4px; text-align: center; line-height: 1.05;
+    box-shadow: 0 2px 6px rgba(0,0,0,.15);
+    min-width: 86px;
+  }
+  .logo-tbc img {
+    max-height: 44px;
+    display: block;
+    margin: 0 auto;
+  }
+  .logo-tbc .l-logo { display: block; font-family: 'Fredoka One', Arial; font-size: 15px; color: #00AAFF; }
+  .logo-tbc .l-the    { display: block; font-family: 'Fredoka One', Arial; font-size: 9px;  color: #00AAFF; letter-spacing: .5px; }
+  .logo-tbc .l-brands { display: block; font-family: 'Fredoka One', Arial; font-size: 15px; color: #00AAFF; }
+  .logo-tbc .l-club   { display: block; font-family: 'Fredoka One', Arial; font-size: 18px; color: #00AAFF; letter-spacing: 1px; }
+  .header-title { font-family: 'Fredoka One', Arial; font-size: 20px; letter-spacing: .5px; }
+  .header-date  { font-size: 11px; opacity: .85; margin-top: 1px; }
+  .header-actions { display: flex; gap: 8px; align-items: center; }
+  .user-badge {
+    font-size: 10.5px; opacity: .9;
+    background: rgba(255,255,255,.25);
+    padding: 4px 10px; border-radius: 20px;
+  }
+
+  .nav-tabs {
+    background: #0090DD;
+    display: flex;
+    padding: 0 24px;
+    border-bottom: 3px solid #007ABB;
+  }
+  .nav-tab {
+    display: inline-block;
+    padding: 9px 20px;
+    color: rgba(255,255,255,.65);
+    text-decoration: none;
+    font-family: 'Fredoka One', Arial;
+    font-size: 13px;
+    letter-spacing: .4px;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -3px;
+    transition: color .15s, border-color .15s;
+  }
+  .nav-tab:hover { color: rgba(255,255,255,.9); }
+  .nav-tab.active { color: white; border-bottom-color: white; }
+
+  .ds-bar {
+    background: #f4f8fb; border-bottom: 1px solid #dde8f0;
+    padding: 5px 24px; display: flex; align-items: center; gap: 10px;
+    font-size: 11px; color: #555;
+  }
+  .ds-dot { width:9px; height:9px; border-radius:50%; background:#aaa; flex-shrink:0; transition:background .3s; }
+  .ds-dot.ok   { background:#27ae60; box-shadow:0 0 5px rgba(39,174,96,.5); }
+  .ds-dot.warn { background:#f39c12; }
+  .ds-dot.err  { background:#e74c3c; }
+  .ds-btn { background:white; border:1px solid #ccd6e0; border-radius:4px; padding:2px 9px; cursor:pointer; font-size:10.5px; color:#0077BB; }
+  .ds-btn:hover { background:#e8f4ff; }
+
+  /* ── TOOLBAR ── */
+  .toolbar {
+    background: white;
+    padding: 10px 24px;
+    display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+    border-bottom: 2px solid #CCE9FF;
+    box-shadow: 0 1px 4px rgba(0,150,255,.08);
+  }
+  .toolbar label { font-weight: 700; color: #0077BB; font-size: 11px; }
+  .toolbar select, .toolbar input {
+    border: 1.5px solid #99D4F5; border-radius: 6px;
+    padding: 5px 10px; font-size: 12px; outline: none;
+  }
+  .toolbar select:focus, .toolbar input:focus { border-color: #00AAFF; }
+
+  /* ── THRESHOLD CONFIG ── */
+  .threshold-bar {
+    background: #fffbe6; border-bottom: 1px solid #ffe082;
+    padding: 7px 24px; display: flex; align-items: center; gap: 16px;
+    font-size: 11px; color: #7d6608;
+  }
+  .threshold-bar strong { color: #5d4e08; }
+  .threshold-bar input[type=number] {
+    width: 60px; border: 1.5px solid #ffe082; border-radius: 5px;
+    padding: 3px 7px; font-size: 12px; text-align: center;
+  }
+
+  /* ── KPI BAR ── */
+  .summary-bar {
+    display: flex; gap: 12px; flex-wrap: wrap;
+    padding: 10px 24px;
+    background: #fff;
+    border-bottom: 1px solid #CCE9FF;
+  }
+  .kpi {
+    background: #F0F9FF; border: 1.5px solid #99D4F5;
+    border-radius: 10px; padding: 8px 16px;
+    min-width: 130px; text-align: center;
+  }
+  .kpi .kpi-val { font-family: 'Fredoka One', Arial; font-size: 22px; color: #00AAFF; }
+  .kpi .kpi-lbl { font-size: 10px; color: #666; text-transform: uppercase; letter-spacing: .5px; margin-top: 2px; }
+  .kpi.danger .kpi-val { color: #c0392b; }
+  .kpi.warn   .kpi-val { color: #e67e22; }
+  .kpi.ok     .kpi-val { color: #27ae60; }
+
+  /* ── CONTENT ── */
+  .content { padding: 16px 24px; }
+
+  .table-card {
+    background: white; border-radius: 12px;
+    overflow: hidden; box-shadow: 0 2px 12px rgba(0,150,255,.1);
+  }
+
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  thead tr { background: #00AAFF; color: white; }
+  thead th {
+    padding: 10px 12px; text-align: center;
+    border: 1px solid #0088CC;
+    white-space: nowrap; font-weight: 700; font-size: 11px;
+  }
+  tbody tr { border-bottom: 1px solid #e8edf2; transition: background .15s; }
+  tbody tr:hover { background: #f0f5ff; }
+  tbody tr:nth-child(even) { background: #f9fbfd; }
+  tbody tr:nth-child(even):hover { background: #e8f0fe; }
+  td { padding: 6px 8px; border: 1px solid #dde3ee; vertical-align: middle; text-align: center; font-size: 11px; }
+  td.txt { text-align: left; }
+  td.num { text-align: right; font-variant-numeric: tabular-nums; font-weight: 700; min-width: 56px; }
+
+  /* Stock semáforo */
+  td.s-ok   { background: #d5f5e3; color: #1e8449; font-weight: 800; }
+  td.s-warn { background: #fef9e7; color: #7d6608; font-weight: 800; }
+  td.s-low  { background: #fadbd8; color: #922b21; font-weight: 800; }
+  td.s-zero { background: #922b21; color: white;   font-weight: 800; }
+
+  tr.totals-row td {
+    background: #0088CC; color: white; font-weight: 800;
+    font-size: 11px; border: 1px solid #006DAA;
+  }
+
+  /* ── ALERT BANNER ── */
+  .alert-banner {
+    margin-bottom: 14px; border-radius: 10px;
+    padding: 12px 18px;
+    background: #fadbd8; border: 1.5px solid #e74c3c;
+    color: #922b21; font-size: 12px;
+  }
+  .alert-banner strong { font-size: 13px; }
+  .alert-banner ul { margin: 6px 0 0 18px; }
+
+  /* ── LEGEND ── */
+  .legend {
+    display: flex; gap: 14px; align-items: center;
+    padding: 7px 24px; background: white;
+    border-bottom: 1px solid #CCE9FF; font-size: 10.5px; flex-wrap: wrap;
+  }
+  .legend-item { display: flex; align-items: center; gap: 5px; }
+  .legend-dot { width: 12px; height: 12px; border-radius: 3px; flex-shrink: 0; }
+
+  /* ── BUTTONS ── */
+  .btn {
+    padding: 6px 14px; border: none; border-radius: 20px;
+    cursor: pointer; font-size: 11.5px; font-weight: 700;
+    transition: opacity .2s;
+  }
+  .btn:hover { opacity: .85; }
+  .btn-success { background: #27ae60; color: white; }
+  .btn-light   { background: rgba(255,255,255,.25); color: white; border: 1px solid rgba(255,255,255,.4); }
+  .btn-danger  { background: #c0392b; color: white; }
+
+  /* ── LOADING / TOAST ── */
+  .loading-overlay {
+    position: fixed; inset: 0; background: rgba(255,255,255,.7);
+    z-index: 300; display: flex; align-items: center; justify-content: center;
+    flex-direction: column; gap: 12px;
+    font-size: 14px; color: #0f3460; font-weight: 700;
+  }
+  .spinner-big {
+    width: 36px; height: 36px;
+    border: 4px solid #cce; border-top-color: #0f3460;
+    border-radius: 50%; animation: spin .8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .toast {
+    position: fixed; bottom: 24px; right: 24px;
+    background: #2c3e50; color: white;
+    padding: 10px 18px; border-radius: 8px;
+    font-size: 12px; font-weight: 700;
+    box-shadow: 0 4px 16px rgba(0,0,0,.25);
+    z-index: 400;
+    transform: translateY(80px); opacity: 0;
+    transition: transform .3s, opacity .3s;
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+  .toast.ok  { background: #27ae60; }
+  .toast.err { background: #c0392b; }
+
+  @media print {
+    .toolbar, .header-actions, .nav-tabs, .ds-bar, .threshold-bar { display: none; }
+    body { background: white; }
+    .content { padding: 4px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="loading-overlay" id="loadingOverlay" style="display:none">
+  <div class="spinner-big"></div>
+  <span id="loadingMsg">Cargando...</span>
+</div>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-left">
+    <div class="logo-tbc">
+      <img src="logo.png" alt="La Magia De Ser Tu" onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
+      <span class="l-logo" style="display:none;">La Magia De Ser Tu</span>
+    </div>
+    <div>
+      <div class="header-title">&#128717; Stock de Bolsas</div>
+      <div class="header-date" id="headerDate"></div>
+    </div>
+  </div>
+  <div class="header-center">La Magia De Ser Tu</div>
+  <div class="header-actions">
+    <span class="user-badge" id="userBadge">Vista previa</span>
+    <button class="btn btn-success" onclick="exportCSV()">&#11015; Exportar Excel</button>
+    <button class="btn btn-light" onclick="forceRefresh()" title="Limpiar caché y recargar">&#8635; Actualizar</button>
+    <button class="btn btn-danger" onclick="logout()">Salir</button>
+  </div>
+</div>
+
+<!-- NAV TABS -->
+<div class="nav-tabs">
+  <a href="dashboard-recepciones.html" class="nav-tab">&#128230; Recepciones</a>
+  <a href="dashboard-stock.html"       class="nav-tab">&#128202; Stock x Tienda</a>
+  <a href="dashboard-bolsas.html"      class="nav-tab active">&#128717; Bolsas</a>
+  <a href="dashboard-guias.html"       class="nav-tab">&#128221; Guías</a>
+</div>
+
+<!-- DATA SOURCE -->
+<div class="ds-bar">
+  <span class="ds-dot warn" id="dsDot"></span>
+  <span id="dsText">Fuente: Vista previa (datos de muestra)</span>
+  <button class="ds-btn" onclick="testConnection()">&#128246; Probar conexión</button>
+</div>
+
+<!-- threshold-bar eliminado — umbrales por tienda/SKU en STOCK_CRITICO -->
+
+<!-- LEGEND -->
+<div class="legend">
+  <strong>Stock:</strong>
+  <div class="legend-item"><div class="legend-dot" style="background:#922b21;"></div> Sin stock (0)</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#fadbd8;border:1px solid #922b21"></div> Crítico (bajo mínimo)</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#fef9e7;border:1px solid #7d6608"></div> Precaución</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#d5f5e3;border:1px solid #1e8449"></div> OK</div>
+</div>
+
+<!-- TOOLBAR -->
+<div class="toolbar">
+  <label>&#128269; Tienda:</label>
+  <select id="filterTienda" onchange="rerender()">
+    <option value="">— Todas —</option>
+  </select>
+  <label>Tipo almacén:</label>
+  <select id="filterTipo" onchange="rerender()">
+    <option value="">— Todos —</option>
+    <option value="BTIE">Tiendas (BTIE)</option>
+    <option value="BTRT">Tránsito (BTRT)</option>
+  </select>
+  <label>Bolsa:</label>
+  <select id="filterBolsa" onchange="rerender()">
+    <option value="">— Todas —</option>
+    <option value="yapack">Yapack</option>
+    <option value="kraft">Kraft Blanco</option>
+  </select>
+  <label>Mostrar solo:</label>
+  <select id="filterAlerta" onchange="rerender()">
+    <option value="">— Todas —</option>
+    <option value="critico">Con stock crítico o sin stock</option>
+    <option value="precaucion">Con precaución o más grave</option>
+  </select>
+  <button class="btn btn-light" style="background:#e8f4ff;color:#0077BB;border:1px solid #99D4F5;" onclick="clearFilters()">&#10005; Limpiar</button>
+  <span id="resultCount" style="margin-left:auto;color:#666;font-size:11px;"></span>
+</div>
+
+<!-- KPI BAR -->
+<div class="summary-bar" id="kpiBar"></div>
+
+<!-- CONTENT -->
+<div class="content" id="mainContent"></div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="config.js"></script>
+<script>
+
+const sb       = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const sbBronze = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, { db: { schema: 'bronze_layer' }, auth: { storageKey: 'tbc-bronze-auth', persistSession: false, autoRefreshToken: false } });
+
+// SKUs de bolsas — editar aquí si cambian
+const BOLSAS_SKUS = [
+  { sku: '29301984966999',  label: 'Bolsa Pequeña Kraft Blanco' },
+  { sku: '29301985066999',  label: 'Bolsa Grande Kraft Blanco'  },
+  { sku: '10002265966999',  label: 'Bolsa Pequeña Yapack'       },
+  { sku: '10002266066999',  label: 'Bolsa Grande Yapack'        },
+];
+
+// Stock crítico por tienda y SKU (fuente: tabla SAP)
+const STOCK_CRITICO = {
+  'BTIE002': { '10002265966999': 600, '10002266066999': 800 },
+  'BTIE005': { '10002265966999': 600 },
+  'BTIE006': { '10002265966999': 800, '10002266066999': 800 },
+  'BTIE007': { '10002265966999': 800, '10002266066999': 800 },
+  'BTIE009': { '10002265966999': 600, '10002266066999': 800 },
+  'BTIE019': { '10002265966999': 600, '10002266066999': 800 },
+  'BTIE041': { '10002265966999': 400, '10002266066999': 400 },
+  'BTIE044': { '10002265966999': 400 },
+  'BTIE045': { '10002265966999': 400, '10002266066999': 400 },
+  'BTIE053': { '10002265966999': 800, '10002266066999': 800 },
+  'BTIE054': { '10002265966999': 600, '10002266066999': 800 },
+  'BTIE055': { '10002265966999': 400, '10002266066999': 400 },
+  'BTIE057': { '10002265966999': 400, '10002266066999': 400 },
+  'BTIE062': { '10002265966999': 600, '10002266066999': 800 },
+  'BTIE063': { '10002265966999': 600 },
+  'BTRT002': { '10002266066999': 800 },
+  'BTRT055': { '10002266066999': 400 },
+  'BTRT063': { '10002266066999': 400 },
+};
+
+function getCritico(cod, sku) {
+  return STOCK_CRITICO[cod]?.[sku] ?? null;
+}
+
+// Datos transformados: Map<codigo_almacen, { nombre, skuStocks: { sku: n } }>
+let storeMap = {};
+
+// ── MOCK DATA ──
+const MOCK_STORES = [
+  { codigo_almacen:'BTIE002', nombre_almacen:'TIENDA TBC OUTLET LA FABRICA PATIO' },
+  { codigo_almacen:'BTIE005', nombre_almacen:'TIENDA TBC MALL VIVO CENTRO' },
+  { codigo_almacen:'BTIE007', nombre_almacen:'TIENDA TBC MALL ARAUCO ESTACION' },
+  { codigo_almacen:'BTIE045', nombre_almacen:'TIENDA TBC PATIO OUTLET TEMUCO' },
+  { codigo_almacen:'BTIE009', nombre_almacen:'TIENDA TBC MALL PORTAL NUNOA' },
+  { codigo_almacen:'BTIE044', nombre_almacen:'TIENDA TBC MALL ARAUCO MAIPU' },
+  { codigo_almacen:'BTIE006', nombre_almacen:'TIENDA TBC MALL PLAZA OESTE' },
+  { codigo_almacen:'BTIE053', nombre_almacen:'TIENDA TBC OUTLET PLAZA EGANA' },
+];
+const MOCK_STOCK = {
+  'BTIE002': { '29301984966999': 12, '29301985066999': 8,  '10002265966999': 0,  '10002266066999': 5  },
+  'BTIE005': { '29301984966999': 3,  '29301985066999': 0,  '10002265966999': 8,  '10002266066999': 3  },
+  'BTIE007': { '29301984966999': 0,  '29301985066999': 20, '10002265966999': 12, '10002266066999': 0  },
+  'BTIE045': { '29301984966999': 7,  '29301985066999': 4,  '10002265966999': 2,  '10002266066999': 9  },
+  'BTIE009': { '29301984966999': 2,  '29301985066999': 1,  '10002265966999': 0,  '10002266066999': 0  },
+  'BTIE044': { '29301984966999': 18, '29301985066999': 11, '10002265966999': 6,  '10002266066999': 14 },
+  'BTIE006': { '29301984966999': 0,  '29301985066999': 0,  '10002265966999': 0,  '10002266066999': 0  },
+  'BTIE053': { '29301984966999': 5,  '29301985066999': 6,  '10002265966999': 4,  '10002266066999': 2  },
+};
+
+function buildMockStoreMap() {
+  const map = {};
+  MOCK_STORES.forEach(s => {
+    map[s.codigo_almacen] = {
+      nombre: s.nombre_almacen,
+      skuStocks: MOCK_STOCK[s.codigo_almacen] || {},
+      skuDescs: {}
+    };
+  });
+  return map;
+}
+
+// ── AUTH ──
+async function logout() {
+  await sb.auth.signOut();
+  window.location.href = 'login.html';
+}
+
+// ── CACHE ──
+function cacheSet(key, value) {
+  try { localStorage.setItem(key, JSON.stringify({ ts: Date.now(), value })); } catch(e) {}
+}
+function cacheGet(key, ttlMin = 60) {
+  try {
+    const raw = localStorage.getItem(key);
+    if (!raw) return null;
+    const { ts, value } = JSON.parse(raw);
+    if (Date.now() - ts > ttlMin * 60 * 1000) return null;
+    return value;
+  } catch(e) { return null; }
+}
+function cacheClear(prefix) {
+  Object.keys(localStorage).filter(k => k.startsWith(prefix)).forEach(k => localStorage.removeItem(k));
+}
+
+function withTimeout(promise, ms) {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), ms))
+  ]);
+}
+
+function forceRefresh() {
+  cacheClear('tbc_bolsas');
+  loadData();
+  showToast('Caché limpiado — recargando datos frescos');
+}
+
+// ── DATA LOADING ──
+async function loadData() {
+  const cacheKey = 'tbc_bolsas_all';
+  const cached = cacheGet(cacheKey, 60);
+  if (cached) {
+    storeMap = cached;
+    rerender();
+    showToast('Datos cargados (caché)');
+    return;
+  }
+
+  const skuList = BOLSAS_SKUS.map(b => b.sku);
+  const BATCH = 1000;
+  let allRows = [], from = 0, hasMore = true;
+
+  while (hasMore) {
+    let rows, error;
+    try {
+      const res = await withTimeout(
+        sbBronze.from('raw_query_stock_tiendas_cl')
+          .select('*')
+          .in('SKU Hijo', skuList)
+          .range(from, from + BATCH - 1),
+        20000
+      );
+      rows = res.data; error = res.error;
+    } catch(e) {
+      showToast('Timeout — mostrando muestra', 'err');
+      storeMap = buildMockStoreMap();
+      rerender(); setDataSource('err', 0); return;
+    }
+
+    if (error) {
+      showToast('Error: ' + error.message + ' — mostrando muestra', 'err');
+      storeMap = buildMockStoreMap();
+      rerender(); setDataSource('err', 0); return;
+    }
+
+    allRows = allRows.concat(rows || []);
+    hasMore = (rows || []).length === BATCH;
+    from += BATCH;
+  }
+
+  if (allRows.length === 0) {
+    showToast('Sin datos en Supabase — mostrando muestra');
+    storeMap = buildMockStoreMap();
+    rerender(); setDataSource('mock', 0); return;
+  }
+
+  // Agrupar por tienda
+  const map = {};
+  allRows.forEach(r => {
+    const cod  = r['Codigo Almacen'];
+    const nom  = r['Nombre Almacen'] || cod;
+    const sku  = String(r['SKU Hijo'] ?? '');
+    const stk  = Number(r['En Stock']) || 0;
+    const desc = r['Descripcion'] || r['Descripción'] || '';
+    if (!map[cod]) map[cod] = { nombre: nom, skuStocks: {}, skuDescs: {} };
+    map[cod].nombre = nom;
+    map[cod].skuStocks[sku] = (map[cod].skuStocks[sku] || 0) + stk;
+    if (desc && !map[cod].skuDescs[sku]) map[cod].skuDescs[sku] = desc;
+  });
+
+  storeMap = map;
+  cacheSet(cacheKey, storeMap);
+  setDataSource('supabase', allRows.length);
+  showToast(`${Object.keys(storeMap).length} tiendas cargadas`, 'ok');
+  rerender();
+}
+
+// ── DATA SOURCE ──
+function setDataSource(src, count) {
+  const dot = document.getElementById('dsDot');
+  const txt = document.getElementById('dsText');
+  if (src === 'supabase') {
+    dot.className = 'ds-dot ok';
+    txt.textContent = `Fuente: Supabase ✓ — ${count} registros`;
+  } else if (src === 'mock') {
+    dot.className = 'ds-dot warn';
+    txt.textContent = 'Fuente: Vista previa (datos de muestra)';
+  } else {
+    dot.className = 'ds-dot err';
+    txt.textContent = 'Error de conexión — mostrando datos de muestra';
+  }
+}
+
+async function testConnection() {
+  const dot = document.getElementById('dsDot');
+  const txt = document.getElementById('dsText');
+  dot.className = 'ds-dot'; txt.textContent = 'Probando...';
+  try {
+    const res = await withTimeout(
+      sbBronze.from('raw_query_stock_tiendas_cl').select('*', { count: 'exact', head: true }),
+      8000
+    );
+    if (res.error) {
+      dot.className = 'ds-dot err';
+      txt.textContent = `ERROR: ${res.error.message}`;
+    } else {
+      setDataSource('supabase', res.count || 0);
+      showToast('Conexión OK', 'ok');
+    }
+  } catch(e) {
+    dot.className = 'ds-dot err';
+    txt.textContent = 'TIMEOUT bronze_layer';
+  }
+}
+
+// ── THRESHOLDS ──
+function stockClass(n, cod, sku) {
+  const critico = getCritico(cod, sku);
+  if (n === 0)                        return 's-zero';
+  if (critico !== null && n <= critico) return 's-low';
+  if (critico !== null && n <= critico * 1.5) return 's-warn';
+  return 's-ok';
+}
+
+function alertLevel(storeEntry, cod) {
+  const skusConCritico = BOLSAS_SKUS.filter(b => getCritico(cod, b.sku) !== null);
+  if (skusConCritico.length === 0) return 'ok';
+  for (const b of skusConCritico) {
+    const n = storeEntry.skuStocks[b.sku] ?? 0;
+    const c = getCritico(cod, b.sku);
+    if (n === 0 || n <= c)    return 'critico';
+  }
+  for (const b of skusConCritico) {
+    const n = storeEntry.skuStocks[b.sku] ?? 0;
+    const c = getCritico(cod, b.sku);
+    if (n <= c * 1.5) return 'precaucion';
+  }
+  return 'ok';
+}
+
+// ── FILTERS ──
+function getFilteredStores() {
+  const fTienda = document.getElementById('filterTienda').value;
+  const fTipo   = document.getElementById('filterTipo').value;
+  const fAlerta = document.getElementById('filterAlerta').value;
+
+  return Object.entries(storeMap).filter(([cod, s]) => {
+    if (fTienda && cod !== fTienda) return false;
+    if (fTipo   && !cod.startsWith(fTipo)) return false;
+    if (fAlerta) {
+      const lv = alertLevel(s, cod);
+      if (fAlerta === 'critico'    && lv !== 'critico')                      return false;
+      if (fAlerta === 'precaucion' && lv !== 'critico' && lv !== 'precaucion') return false;
+    }
+    return true;
+  }).sort((a, b) => a[0].localeCompare(b[0]));
+}
+
+function clearFilters() {
+  document.getElementById('filterTienda').value = '';
+  document.getElementById('filterTipo').value   = '';
+  document.getElementById('filterBolsa').value  = '';
+  document.getElementById('filterAlerta').value = '';
+  rerender();
+}
+
+const KRAFT_SKUS  = ['29301984966999', '29301985066999'];
+const YAPACK_SKUS = ['10002265966999', '10002266066999'];
+
+function getVisibleSkus() {
+  const f = document.getElementById('filterBolsa').value;
+  if (f === 'kraft')  return BOLSAS_SKUS.filter(b => KRAFT_SKUS.includes(b.sku));
+  if (f === 'yapack') return BOLSAS_SKUS.filter(b => YAPACK_SKUS.includes(b.sku));
+  return BOLSAS_SKUS;
+}
+
+// ── RENDER ──
+function rerender() {
+  updateTiendaSelect();
+  updateKPIs();
+  renderTable();
+}
+
+function updateTiendaSelect() {
+  const sel = document.getElementById('filterTienda');
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">— Todas —</option>';
+  Object.entries(storeMap).sort((a,b) => a[0].localeCompare(b[0])).forEach(([cod, s]) => {
+    const o = document.createElement('option');
+    o.value = cod;
+    o.textContent = `${cod} — ${s.nombre}`;
+    if (cod === cur) o.selected = true;
+    sel.appendChild(o);
+  });
+}
+
+function updateKPIs() {
+  const all = Object.entries(storeMap);
+
+  const skuTotals = {};
+  BOLSAS_SKUS.forEach(b => { skuTotals[b.sku] = 0; });
+  let sinStock = 0, criticos = 0, enPrecaucion = 0;
+
+  all.forEach(([cod, s]) => {
+    BOLSAS_SKUS.forEach(b => { skuTotals[b.sku] += s.skuStocks[b.sku] ?? 0; });
+    const lv = alertLevel(s, cod);
+    if (lv === 'critico')    criticos++;
+    if (lv === 'precaucion') enPrecaucion++;
+    if (Math.min(...BOLSAS_SKUS.map(b => s.skuStocks[b.sku] ?? 0)) === 0) sinStock++;
+  });
+
+  const skuKpis = BOLSAS_SKUS.map(b =>
+    `<div class="kpi ok"><div class="kpi-val">${skuTotals[b.sku].toLocaleString('es-CL')}</div><div class="kpi-lbl">${b.label}</div></div>`
+  ).join('');
+
+  document.getElementById('kpiBar').innerHTML = `
+    <div class="kpi"><div class="kpi-val">${all.length}</div><div class="kpi-lbl">Tiendas</div></div>
+    ${skuKpis}
+    <div class="kpi danger"><div class="kpi-val">${sinStock}</div><div class="kpi-lbl">Sin stock (0)</div></div>
+    <div class="kpi danger"><div class="kpi-val">${criticos}</div><div class="kpi-lbl">Crítico</div></div>
+    <div class="kpi warn"><div class="kpi-val">${enPrecaucion}</div><div class="kpi-lbl">Precaución</div></div>
+  `;
+}
+
+function renderTable() {
+  const content = document.getElementById('mainContent');
+  const rows = getFilteredStores();
+
+  document.getElementById('resultCount').textContent = `${rows.length} tienda${rows.length !== 1 ? 's' : ''}`;
+
+  // Alert banner — tiendas sin stock
+  const sinStock = rows.filter(([, s]) => {
+    const stocks = BOLSAS_SKUS.map(b => s.skuStocks[b.sku] ?? 0);
+    return Math.min(...stocks) === 0;
+  });
+
+  let bannerHtml = '';
+  if (sinStock.length > 0) {
+    const items = sinStock.map(([cod, s]) => {
+      const ceros = BOLSAS_SKUS.filter(b => (s.skuStocks[b.sku] ?? 0) === 0).map(b => b.label).join(', ');
+      return `<li><strong>${cod}</strong> — ${s.nombre}: sin stock de ${ceros}</li>`;
+    }).join('');
+    bannerHtml = `<div class="alert-banner">
+      <strong>&#9888; ${sinStock.length} tienda${sinStock.length !== 1 ? 's' : ''} sin stock de bolsas</strong>
+      <ul>${items}</ul>
+    </div>`;
+  }
+
+  if (!rows.length) {
+    content.innerHTML = bannerHtml + `<div style="padding:40px;text-align:center;color:#aaa;font-style:italic;">No hay tiendas con los filtros seleccionados.</div>`;
+    return;
+  }
+
+  // Totales
+  const tots = {};
+  BOLSAS_SKUS.forEach(b => { tots[b.sku] = 0; });
+  rows.forEach(([, s]) => {
+    BOLSAS_SKUS.forEach(b => { tots[b.sku] += s.skuStocks[b.sku] ?? 0; });
+  });
+
+  // Tomar descripción del primer store que la tenga
+  const visibleSkus = getVisibleSkus();
+  const skuHeaders = visibleSkus.map(b => {
+    const desc = Object.values(storeMap).map(s => s.skuDescs?.[b.sku]).find(d => d) || '';
+    const esKraft = KRAFT_SKUS.includes(b.sku);
+    const agotandoTag = esKraft ? `<div style="font-size:9px;color:#e67e22;font-weight:700;margin-top:2px;">EN LIQUIDACIÓN</div>` : '';
+    return `<th style="min-width:130px;">${b.label}
+      ${desc ? `<div style="font-size:9px;opacity:.65;font-weight:400;margin-top:2px;">${desc}</div>` : ''}
+      ${agotandoTag}
+      <div style="font-size:9px;opacity:.5;font-weight:400;">${b.sku}</div>
+    </th>`;
+  }).join('');
+
+  const skuTotals = visibleSkus.map(b =>
+    `<td class="num">${tots[b.sku].toLocaleString('es-CL')}</td>`
+  ).join('');
+
+  const bodyRows = rows.map(([cod, s]) => {
+    const skuCells = visibleSkus.map(b => {
+      const n = s.skuStocks[b.sku] ?? 0;
+      const esKraft = KRAFT_SKUS.includes(b.sku);
+      if (esKraft) {
+        // Kraft Blanco en liquidación — sin semáforo, solo gris
+        return `<td class="num" style="background:#f4f4f4;color:#999;" title="En liquidación — sin reposición">${n.toLocaleString('es-CL')}</td>`;
+      }
+      const c = getCritico(cod, b.sku);
+      const cls = stockClass(n, cod, b.sku);
+      const title = c !== null ? `title="Crítico: ${c.toLocaleString('es-CL')}"` : '';
+      return `<td class="num ${cls}" ${title}>${n.toLocaleString('es-CL')}</td>`;
+    }).join('');
+
+    const allStocks = BOLSAS_SKUS.map(b => s.skuStocks[b.sku] ?? 0);
+    const total = allStocks.reduce((a, v) => a + v, 0);
+    const lv = alertLevel(s, cod);
+    const badge = lv === 'critico'    ? '<span style="background:#fadbd8;color:#922b21;border:1px solid #e74c3c;border-radius:10px;padding:1px 8px;font-size:10px;font-weight:700;">CRÍTICO</span>'
+                : lv === 'precaucion' ? '<span style="background:#fef9e7;color:#7d6608;border:1px solid #ffe082;border-radius:10px;padding:1px 8px;font-size:10px;font-weight:700;">PRECAUCIÓN</span>'
+                : '<span style="background:#d5f5e3;color:#1e8449;border:1px solid #27ae60;border-radius:10px;padding:1px 8px;font-size:10px;font-weight:700;">OK</span>';
+
+    return `<tr>
+      <td style="font-weight:700;color:#0077BB;white-space:nowrap;">${cod}</td>
+      <td class="txt" style="min-width:240px;">${s.nombre}</td>
+      ${skuCells}
+      <td class="num" style="font-weight:800;">${total.toLocaleString('es-CL')}</td>
+      <td style="text-align:center;">${badge}</td>
+    </tr>`;
+  }).join('');
+
+  content.innerHTML = bannerHtml + `
+    <div class="table-card">
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th>ALMACÉN</th>
+            <th style="text-align:left;min-width:240px;">NOMBRE TIENDA</th>
+            ${skuHeaders}
+            <th>TOTAL</th>
+            <th>ESTADO</th>
+          </tr></thead>
+          <tbody>${bodyRows}</tbody>
+          <tfoot><tr class="totals-row">
+            <td colspan="2" style="text-align:right;padding-right:12px;">TOTALES</td>
+            ${skuTotals}
+            <td class="num">${visibleSkus.reduce((a, b) => a + tots[b.sku], 0).toLocaleString('es-CL')}</td>
+            <td></td>
+          </tr></tfoot>
+        </table>
+      </div>
+    </div>`;
+}
+
+// ── EXPORT ──
+function exportCSV() {
+  const rows = getFilteredStores();
+  if (!rows.length) { showToast('Sin datos para exportar', 'err'); return; }
+
+  const wsData = rows.map(([cod, s]) => {
+    const row = { 'Codigo Almacen': cod, 'Nombre Tienda': s.nombre };
+    BOLSAS_SKUS.forEach(b => { row[b.label] = s.skuStocks[b.sku] ?? 0; });
+    row['Total Bolsas'] = BOLSAS_SKUS.reduce((a, b) => a + (s.skuStocks[b.sku] ?? 0), 0);
+    row['Estado'] = alertLevel(s, cod).toUpperCase();
+    return row;
+  });
+
+  const wb = XLSX.utils.book_new();
+  const ws = XLSX.utils.json_to_sheet(wsData);
+  ws['!cols'] = [{ wch: 12 }, { wch: 38 }, { wch: 14 }, { wch: 14 }, { wch: 12 }, { wch: 12 }];
+  XLSX.utils.book_append_sheet(wb, ws, 'Bolsas');
+  XLSX.writeFile(wb, `STOCK_BOLSAS_${new Date().toISOString().slice(0,10)}.xlsx`);
+  showToast(`${rows.length} tiendas exportadas`);
+}
+
+// ── UI ──
+function showLoading(msg) {
+  document.getElementById('loadingMsg').textContent = msg || 'Cargando...';
+  document.getElementById('loadingOverlay').style.display = 'flex';
+}
+function hideLoading() { document.getElementById('loadingOverlay').style.display = 'none'; }
+
+let toastTimer;
+function showToast(msg, type) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show ' + (type || '');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { t.className = 'toast'; }, 3000);
+}
+
+// ── INIT ──
+document.addEventListener('DOMContentLoaded', async () => {
+  const d = new Date();
+  document.getElementById('headerDate').textContent =
+    `Actualizado: ${d.toLocaleDateString('es-CL', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}`;
+
+  // Mock inmediato
+  storeMap = buildMockStoreMap();
+  rerender();
+  showToast('Cargando datos reales...');
+
+  // Auth (no bloqueante)
+  try {
+    const { data: { session } } = await Promise.race([
+      sb.auth.getSession(),
+      new Promise((_, r) => setTimeout(() => r(new Error('timeout')), 5000))
+    ]);
+    document.getElementById('userBadge').textContent = session ? session.user.email : 'Vista previa';
+  } catch(e) {
+    document.getElementById('userBadge').textContent = 'Vista previa';
+  }
+
+  try { await loadData(); } catch(e) { hideLoading(); }
+
+  // Auto-refresh silencioso cada 15 minutos
+  setInterval(() => { cacheClear('tbc_bolsas'); loadData(); }, 15 * 60 * 1000);
+});
+</script>
+</body>
+</html>
