@@ -1,7 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Bash(curl -s -w '\\\\nHTTP:%{http_code}' 'https://zwohsxuysjmokeilcnvo.supabase.co/rest/v1/raw_query_informe_tiendas_recep_cl?limit=1' -H 'apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3b2hzeHV5c2ptb2tlaWxjbnZvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU4MjQ2NjksImV4cCI6MjA5MTQwMDY2OX0.ndswKP7R81q5RBkkYBSIYpyhfA_yMpGv65rKBWQCvf0' -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3b2hzeHV5c2ptb2tlaWxjbnZvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU4MjQ2NjksImV4cCI6MjA5MTQwMDY2OX0.ndswKP7R81q5RBkkYBSIYpyhfA_yMpGv65rKBWQCvf0' -H 'Accept-Profile: bronze_layer')"
-    ]
-  }
-}
