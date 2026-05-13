@@ -188,6 +188,12 @@
   td.stock-low     { background: #fadbd8; color: #922b21; font-weight: 700; }
   td.transito-ok   { background: #E5F6FF; color: #0077BB; font-weight: 700; }
   td.transito-none { color: #bbb; }
+  td.cap-ok        { background: #d5f5e3; color: #1e8449; font-weight: 800; }
+  td.cap-precaucion{ background: #fff3cd; color: #856404; font-weight: 800; }
+  td.cap-critico   { background: #fadbd8; color: #922b21; font-weight: 800; }
+  .cap-bar { display:flex; align-items:center; gap:6px; justify-content:flex-end; }
+  .cap-bar-track { width:60px; height:7px; background:#e0e0e0; border-radius:4px; overflow:hidden; flex-shrink:0; }
+  .cap-bar-fill  { height:100%; border-radius:4px; transition:width .3s; }
 
   /* ── STORE SECTIONS (grouped view) ── */
   .store-section { margin-bottom: 20px; }
@@ -514,6 +520,36 @@ const MOCK_DATA = [
 
 let data = [...MOCK_DATA];
 let sortCol = null, sortAsc = true;
+
+// Capacidades de stock total por tienda (Stock BTIE)
+const CAP_STOCK = {
+  'BTIE019': { optima: 18000, maxima: 20000 },
+  'BTIE007': { optima: 16000, maxima: 28000 },
+  'BTIE006': { optima: 13000, maxima: 15000 },
+  'BTIE045': { optima:  8000, maxima:  9000 },
+  'BTIE041': { optima:  8000, maxima:  9000 },
+  'BTIE055': { optima:  7000, maxima: 10000 },
+  'BTIE053': { optima:  9000, maxima: 11000 },
+  'BTIE009': { optima:  9000, maxima: 10000 },
+  'BTIE002': { optima:  9000, maxima: 10000 },
+  'BTIE057': { optima:  9000, maxima: 10000 },
+  'BTIE054': { optima:  7000, maxima: 10000 },
+  'BTIE044': { optima:  5500, maxima:  6500 },
+  'BTIE005': { optima:  8000, maxima: 10000 },
+  'BTIE063': { optima:  7000, maxima:  8500 },
+  'BTIE056': { optima:  3500, maxima:  3500 },
+  'BTIE059': { optima:  2500, maxima:  2500 },
+  'BTIE058': { optima:  2500, maxima:  2500 },
+  'BTIE062': { optima:  7000, maxima:  8500 },
+};
+
+function capStockClass(totalStock, alm) {
+  const cap = CAP_STOCK[alm];
+  if (!cap) return '';
+  if (totalStock < cap.optima) return 'cap-critico';
+  if (totalStock < cap.maxima) return 'cap-precaucion';
+  return 'cap-ok';
+}
 
 // ═══════════════════════════════════════════════
 //  AUTH
@@ -910,25 +946,56 @@ function renderOverview(content) {
     const totalStock = g.rows.reduce((a, r) => a + (Number(r.en_stock)    || 0), 0);
     const totalTrans = g.rows.reduce((a, r) => a + (Number(r.en_transito) || 0), 0);
     const skus       = new Set(g.rows.map(r => r.sku_padre)).size;
-    bodyRows += `<tr style="cursor:pointer;" onclick="selectStore('${alm}')" title="Ver stock de ${alm}">
+    const cap        = CAP_STOCK[alm];
+    const cls        = capStockClass(totalStock, alm);
+
+    let capOptimaCell = '<td class="num" style="color:#bbb;">—</td>';
+    let capMaximaCell = '<td class="num" style="color:#bbb;">—</td>';
+    let barCell       = '<td></td>';
+
+    if (cap) {
+      const pct     = Math.min(100, Math.round(totalStock / cap.maxima * 100));
+      const barColor = cls === 'cap-ok' ? '#27ae60' : cls === 'cap-precaucion' ? '#f39c12' : '#e74c3c';
+      capOptimaCell = `<td class="num" style="color:#555;">${cap.optima.toLocaleString('es-CL')}</td>`;
+      capMaximaCell = `<td class="num" style="color:#555;">${cap.maxima.toLocaleString('es-CL')}</td>`;
+      barCell = `<td>
+        <div class="cap-bar">
+          <span style="font-size:10px;font-weight:700;color:${barColor};">${pct}%</span>
+          <div class="cap-bar-track">
+            <div class="cap-bar-fill" style="width:${pct}%;background:${barColor};"></div>
+          </div>
+        </div>
+      </td>`;
+    }
+
+    bodyRows += `<tr style="cursor:pointer;" onclick="selectStore('${alm}')" title="Ver detalle de ${alm}">
       <td style="font-weight:700;color:#0077BB;">${alm}</td>
       <td style="text-align:left;">${g.nombre}</td>
       <td class="num">${skus.toLocaleString('es-CL')}</td>
-      <td class="num ${stockClass(totalStock)}" style="font-weight:800;">${totalStock.toLocaleString('es-CL')}</td>
+      <td class="num ${cls}" style="font-weight:800;">${totalStock.toLocaleString('es-CL')}</td>
       <td class="num ${totalTrans>0?'transito-ok':'transito-none'}" style="font-weight:800;">${totalTrans>0?totalTrans.toLocaleString('es-CL'):'—'}</td>
+      ${capOptimaCell}
+      ${capMaximaCell}
+      ${barCell}
     </tr>`;
   });
 
   content.innerHTML = `
     <div style="padding:6px 0 8px;font-size:11.5px;color:#0077BB;font-weight:700;">
-      &#128202; Resumen general &mdash; haz clic en una tienda para ver su stock
+      &#128202; Resumen general &mdash; haz clic en una tienda para ver su stock detallado
     </div>
     <div class="table-card">
       <div class="table-wrap">
         <table>
           <thead><tr>
-            <th>ALMACÉN</th><th style="text-align:left">NOMBRE</th>
-            <th>SKU PADRE</th><th>EN STOCK</th><th>EN TRÁNSITO</th>
+            <th>ALMACÉN</th>
+            <th style="text-align:left">NOMBRE</th>
+            <th>SKU PADRE</th>
+            <th>STOCK BTIE</th>
+            <th>STOCK BTRT</th>
+            <th title="Stock mínimo deseado">CAP ÓPTIMA</th>
+            <th title="Stock máximo ideal">CAP MÁXIMA</th>
+            <th title="% sobre capacidad máxima">% CAP</th>
           </tr></thead>
           <tbody>${bodyRows}</tbody>
         </table>
