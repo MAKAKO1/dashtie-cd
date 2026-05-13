@@ -399,6 +399,10 @@
     <option value="REVISAR">Revisar - Faltante y Sobrante</option>
     <option value="SOBRANTE">Sobrante</option>
   </select>
+  <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-weight:700;color:#c0392b;user-select:none;">
+    <input type="checkbox" id="excludeStatus" onchange="applyFilters()" style="accent-color:#c0392b;width:14px;height:14px;">
+    Excluir
+  </label>
   <label for="searchBox">Buscar:</label>
   <input type="text" id="searchBox" placeholder="N° doc, guía, bodega..." oninput="applyFilters()" style="width:180px">
   <button class="btn btn-light" onclick="clearDateFilter()">Ver todas las fechas</button>
@@ -636,13 +640,17 @@ function statusFilterKey(s) {
 }
 
 function rowMatchesFilters(row) {
-  const df  = document.getElementById('filterDate').value;
-  const sf  = document.getElementById('filterStore').value;
-  const stf = document.getElementById('filterStatus').value;
-  const sb2 = document.getElementById('searchBox').value.toLowerCase().trim();
+  const df   = document.getElementById('filterDate').value;
+  const sf   = document.getElementById('filterStore').value;
+  const stf  = document.getElementById('filterStatus').value;
+  const excl = document.getElementById('excludeStatus').checked;
+  const sb2  = document.getElementById('searchBox').value.toLowerCase().trim();
   if (df && row.fecha_recepcion !== df) return false;
   if (sf && row.bodega !== sf) return false;
-  if (stf && statusFilterKey(row.estado) !== stf) return false;
+  if (stf) {
+    const coincide = statusFilterKey(row.estado) === stf;
+    if (excl ? coincide : !coincide) return false;
+  }
   if (sb2) {
     const joined = COLS.map(c => String(row[c.key] ?? '')).join(' ').toLowerCase();
     if (!joined.includes(sb2)) return false;
@@ -979,7 +987,9 @@ function applyFilters() { updateKPIs(); renderStores(); }
 function clearFilters() {
   document.getElementById('filterStore').value  = '';
   document.getElementById('filterStatus').value = '';
+  document.getElementById('excludeStatus').checked = false;
   document.getElementById('searchBox').value    = '';
+  document.getElementById('filterDate').value   = new Date().toISOString().slice(0, 10);
   applyFilters();
 }
 function clearDateFilter() {
@@ -1190,7 +1200,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('headerDate').textContent =
     `Fecha: ${d.toLocaleDateString('es-CL', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}`;
 
-  // No default date — show all data on first load
+  // Default: filtrar por hoy
+  document.getElementById('filterDate').value = d.toISOString().slice(0, 10);
 
   // Show mock data immediately — no spinner on first paint
   data = MOCK_RECEP;
