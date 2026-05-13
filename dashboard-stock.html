@@ -369,6 +369,13 @@
     <option value="">— Todas —</option>
   </select>
 
+  <label>Período:</label>
+  <select id="filterPeriodo" onchange="applyFilters()">
+    <option value="">— Todos —</option>
+    <option value="actual">Actual (26)</option>
+    <option value="anterior">Anterior (pre-26)</option>
+  </select>
+
   <label>Buscar:</label>
   <input type="text" id="searchBox" placeholder="SKU, descripción..." oninput="applyFilters()" style="width:180px">
 
@@ -690,16 +697,23 @@ function stockClass(v) {
   return 'stock-low';
 }
 
+function esTemporadaActual(temporada) {
+  return /26/.test(temporada || '');
+}
+
 function rowMatchesFilters(row) {
-  const ftipo = document.getElementById('filterTipo').value;
-  const fa    = document.getElementById('filterAlmacen').value;
-  const fc    = document.getElementById('filterClase').value;
-  const ft    = document.getElementById('filterTemporada').value;
-  const sb2   = document.getElementById('searchBox').value.toLowerCase().trim();
+  const ftipo    = document.getElementById('filterTipo').value;
+  const fa       = document.getElementById('filterAlmacen').value;
+  const fc       = document.getElementById('filterClase').value;
+  const ft       = document.getElementById('filterTemporada').value;
+  const fp       = document.getElementById('filterPeriodo').value;
+  const sb2      = document.getElementById('searchBox').value.toLowerCase().trim();
   if (ftipo && !(row.codigo_almacen || '').startsWith(ftipo)) return false;
   if (fa    && row.codigo_almacen !== fa) return false;
   if (fc    && row.clase !== fc) return false;
   if (ft    && row.temporada !== ft) return false;
+  if (fp === 'actual'   && !esTemporadaActual(row.temporada)) return false;
+  if (fp === 'anterior' &&  esTemporadaActual(row.temporada)) return false;
   if (sb2) {
     const joined = [row.codigo_almacen, row.nombre_almacen, row.sku_padre,
       row.sku_hijo, row.descripcion, row.temporada, row.clase]
@@ -926,17 +940,22 @@ function renderRow(row, showAlm = false) {
   const descEsc  = (row.descripcion || '').replace(/"/g, '&quot;');
   const transito = Number(row.en_transito) || 0;
   const transitoCls = transito > 0 ? 'transito-ok' : 'transito-none';
+  const esAnterior  = !esTemporadaActual(row.temporada);
+  const rowStyle    = esAnterior ? ' style="background:#fff8f0;"' : '';
+  const tempCell    = esAnterior
+    ? `<td style="font-size:11px;"><span style="background:#fde8d0;color:#b94a00;border:1px solid #f5cba7;border-radius:8px;padding:1px 6px;font-size:10px;font-weight:700;">${row.temporada || ''}</span></td>`
+    : `<td style="font-size:11px;">${row.temporada || ''}</td>`;
   const almCell  = showAlm
     ? `<td style="font-weight:700;color:#0077BB;white-space:nowrap;" onclick="selectStore('${row.codigo_almacen}')" title="Ver solo ${row.codigo_almacen}" class="alm-link">${row.codigo_almacen || ''}</td>`
     : '';
-  return `<tr>
+  return `<tr${rowStyle}>
     ${almCell}
     <td class="num">${row.sku_padre || ''}</td>
     <td class="num">${row.sku_hijo  || ''}</td>
     <td class="txt" style="min-width:220px;max-width:380px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:left;" title="${descEsc}">${row.descripcion || ''}</td>
     <td class="num ${stockClass(row.en_stock)}" style="font-weight:800;">${row.en_stock ?? 0}</td>
     <td class="num ${transitoCls}" style="font-weight:800;">${transito > 0 ? transito : '—'}</td>
-    <td style="font-size:11px;">${row.temporada || ''}</td>
+    ${tempCell}
     <td><span class="badge-clase">${row.clase || ''}</span></td>
   </tr>`;
 }
@@ -980,7 +999,8 @@ function clearFilters() {
   document.getElementById('filterAlmacen').value  = '';
   document.getElementById('filterClase').value    = '';
   document.getElementById('filterTemporada').value = '';
-  document.getElementById('searchBox').value      = '';
+  document.getElementById('filterPeriodo').value   = '';
+  document.getElementById('searchBox').value       = '';
   applyFilters();
 }
 
