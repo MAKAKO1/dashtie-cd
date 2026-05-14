@@ -408,6 +408,10 @@
     <input type="checkbox" id="filterConDif" onchange="applyFilters()" style="accent-color:#c0392b;width:14px;height:14px;">
     Solo diferencias
   </label>
+  <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-weight:700;color:#e67e22;user-select:none;">
+    <input type="checkbox" id="filterSinRecep" onchange="applyFilters()" style="accent-color:#e67e22;width:14px;height:14px;">
+    Sin recepción
+  </label>
   <label for="searchBox">Buscar:</label>
   <input type="text" id="searchBox" placeholder="N° doc, guía, bodega..." oninput="applyFilters()" style="width:180px">
   <button class="btn btn-light" onclick="clearDateFilter()">Ver todas las fechas</button>
@@ -657,6 +661,12 @@ function rowMatchesFilters(row) {
   if (desde && fd && fd < desde) return false;
   if (hasta && fd && fd > hasta) return false;
   if (sf && row.bodega !== sf) return false;
+  const sinRecep = !row.fecha_recepcion && !row.n_doc_tpv;
+  if (document.getElementById('filterSinRecep').checked) {
+    if (!sinRecep) return false; // mostrar solo pendientes sin recepción
+  } else {
+    if (sinRecep) return false;  // ocultar pendientes del informe normal
+  }
   if (document.getElementById('filterConDif').checked) {
     if ((row.estado || '').toUpperCase() === 'OK') return false;
   }
@@ -998,7 +1008,8 @@ function clearFilters() {
   document.getElementById('filterStore').value     = '';
   document.getElementById('filterStatus').value    = '';
   document.getElementById('excludeStatus').checked = false;
-  document.getElementById('filterConDif').checked  = false;
+  document.getElementById('filterConDif').checked   = false;
+  document.getElementById('filterSinRecep').checked = false;
   document.getElementById('searchBox').value    = '';
   document.getElementById('filterDesde').value  = today;
   document.getElementById('filterHasta').value  = today;
