@@ -593,12 +593,15 @@ async function testConnection() {
 
 // Alerta por tienda: crítico si algún SKU Yapack está bajo su umbral
 function alertLevel(storeEntry, cod) {
+  let hasPrecaucion = false;
   for (const sku of YAPACK_SKUS) {
     const n   = storeEntry.skuStocks[sku] ?? 0;
     const opt = CAP_PER_SKU[sku]?.[cod];
-    if (opt && n < opt) return 'critico';
+    if (!opt) continue;
+    if (n === 0) return 'critico';       // sin stock → crítico inmediato
+    if (n < opt) hasPrecaucion = true;   // bajo umbral pero > 0
   }
-  return 'ok';
+  return hasPrecaucion ? 'precaucion' : 'ok';
 }
 
 // Color de celda Yapack: rojo si bajo umbral, verde si ok

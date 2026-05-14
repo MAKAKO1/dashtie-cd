@@ -1108,13 +1108,14 @@ function collapseAllStores() {
 }
 
 function clearFilters() {
-  document.getElementById('filterTipo').value     = '';
-  document.getElementById('filterAlmacen').value  = '';
-  document.getElementById('filterClase').value    = '';
+  document.getElementById('filterTipo').value      = '';
+  document.getElementById('filterAlmacen').value   = '';
+  document.getElementById('filterClase').value     = '';
   document.getElementById('filterTemporada').value = '';
   document.getElementById('filterPeriodo').value   = '';
   document.getElementById('filterLicencia').value  = '';
   document.getElementById('searchBox').value       = '';
+  sortCol = null; sortAsc = true;
   applyFilters();
 }
 
