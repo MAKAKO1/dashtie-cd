@@ -322,15 +322,8 @@
 <!-- TOOLBAR -->
 <div class="toolbar">
   <label>&#128269; Tienda:</label>
-  <select id="filterTienda" onchange="rerender()">
-    <option value="">— Todas —</option>
-  </select>
-  <label>Tipo almacén:</label>
-  <select id="filterTipo" onchange="rerender()">
-    <option value="">— Todos —</option>
-    <option value="BTIE">Tiendas (BTIE)</option>
-    <option value="BTRT">Tránsito (BTRT)</option>
-  </select>
+  <input id="filterTienda" list="dlTienda" placeholder="— Todas —" oninput="rerender()" style="width:140px">
+  <datalist id="dlTienda"></datalist>
   <label>Bolsa:</label>
   <select id="filterBolsa" onchange="rerender()">
     <option value="">— Todas —</option>
@@ -609,12 +602,11 @@ function cajasLabel(n, sku) {
 // ── FILTERS ──
 function getFilteredStores() {
   const fTienda = document.getElementById('filterTienda').value;
-  const fTipo   = document.getElementById('filterTipo').value;
   const fAlerta = document.getElementById('filterAlerta').value;
 
   return Object.entries(storeMap).filter(([cod, s]) => {
+    if (!cod.startsWith('BTIE')) return false; // solo tiendas, no tránsito
     if (fTienda && cod !== fTienda) return false;
-    if (fTipo   && !cod.startsWith(fTipo)) return false;
     if (fAlerta) {
       const lv = alertLevel(s, cod);
       if (fAlerta === 'critico'    && lv !== 'critico')                      return false;
@@ -626,7 +618,6 @@ function getFilteredStores() {
 
 function clearFilters() {
   document.getElementById('filterTienda').value = '';
-  document.getElementById('filterTipo').value   = '';
   document.getElementById('filterBolsa').value  = '';
   document.getElementById('filterAlerta').value = '';
   rerender();
@@ -650,16 +641,13 @@ function rerender() {
 }
 
 function updateTiendaSelect() {
-  const sel = document.getElementById('filterTienda');
-  const cur = sel.value;
-  sel.innerHTML = '<option value="">— Todas —</option>';
-  Object.entries(storeMap).sort((a,b) => a[0].localeCompare(b[0])).forEach(([cod, s]) => {
-    const o = document.createElement('option');
-    o.value = cod;
-    o.textContent = `${cod} — ${s.nombre}`;
-    if (cod === cur) o.selected = true;
-    sel.appendChild(o);
-  });
+  const dl = document.getElementById('dlTienda');
+  if (!dl) return;
+  dl.innerHTML = Object.entries(storeMap)
+    .filter(([cod]) => cod.startsWith('BTIE'))
+    .sort((a,b) => a[0].localeCompare(b[0]))
+    .map(([cod, s]) => `<option value="${cod}">${cod} — ${s.nombre}</option>`)
+    .join('');
 }
 
 function updateKPIs() {
@@ -730,14 +718,21 @@ function renderTable() {
       if (esKraft) {
         return `<td class="num" style="background:#f4f4f4;color:#999;" title="En liquidación — sin reposición">${n.toLocaleString('es-CL')}</td>`;
       }
-      // Yapack: fondo semáforo, texto negro, caj. arriba derecha, óptima abajo izquierda
-      const cls  = yapackCellClass(n, b.sku, cod);
-      const caj  = cajasLabel(n, b.sku);
-      const opt  = CAP_PER_SKU[b.sku]?.[cod];
-      const hint = opt ? `title="Óptimo: ${opt.toLocaleString('es-CL')} unid"` : '';
-      const optTag = opt ? `<span style="position:absolute;bottom:2px;left:4px;font-size:8px;color:#555;font-weight:400;opacity:.8;">ópt ${opt.toLocaleString('es-CL')}</span>` : '';
+      // Yapack: fondo semáforo, texto negro, caj. arriba derecha, óptima + tránsito abajo
+      const cls     = yapackCellClass(n, b.sku, cod);
+      const caj     = cajasLabel(n, b.sku);
+      const opt     = CAP_PER_SKU[b.sku]?.[cod];
+      const btrtCod = cod.replace('BTIE', 'BTRT');
+      const trns    = storeMap[btrtCod]?.skuStocks[b.sku] ?? 0;
+      const hint    = opt ? `title="Óptimo: ${opt.toLocaleString('es-CL')} | Tránsito: ${trns.toLocaleString('es-CL')}"` : '';
+      const bottomLeft = opt
+        ? `<span style="position:absolute;bottom:2px;left:4px;font-size:8px;color:#555;opacity:.8;display:flex;flex-direction:column;align-items:flex-start;gap:1px;">
+             <span>ópt ${opt.toLocaleString('es-CL')}</span>
+             ${trns > 0 ? `<span style="color:#0077BB;font-weight:700;">trns ${trns.toLocaleString('es-CL')}</span>` : ''}
+           </span>`
+        : '';
       const cajTag = caj ? `<span style="position:absolute;top:2px;right:4px;font-size:8px;color:#555;opacity:.7;">${caj}</span>` : '';
-      return `<td class="num ${cls}" ${hint} style="position:relative;color:#111;padding:14px 8px 10px;">${cajTag}${n.toLocaleString('es-CL')}${optTag}</td>`;
+      return `<td class="num ${cls}" ${hint} style="position:relative;color:#111;padding:14px 8px 16px;">${cajTag}${n.toLocaleString('es-CL')}${bottomLeft}</td>`;
     }).join('');
 
     return `<tr>

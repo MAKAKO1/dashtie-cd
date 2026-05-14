@@ -379,23 +379,22 @@
   <label>&#128202; Tipo:</label>
   <select id="filterTipo" onchange="applyFilters()">
     <option value="">— Todos —</option>
-    <option value="BTIE">Tiendas (BTIE)</option>
+    <option value="Tienda">Tienda</option>
+    <option value="Outlet">Outlet</option>
+    <option value="PopUp">PopUp / Evento</option>
     <option value="BTRT">Tránsito (BTRT)</option>
   </select>
   <label>&#128269; Almacén:</label>
-  <select id="filterAlmacen" onchange="applyFilters()">
-    <option value="">— Todos —</option>
-  </select>
+  <input id="filterAlmacen" list="dlAlmacen" placeholder="— Todos —" oninput="applyFilters()" style="width:170px">
+  <datalist id="dlAlmacen"></datalist>
 
   <label style="margin-left:8px;">Clase:</label>
-  <select id="filterClase" onchange="applyFilters()">
-    <option value="">— Todas —</option>
-  </select>
+  <input id="filterClase" list="dlClase" placeholder="— Todas —" oninput="applyFilters()" style="width:160px">
+  <datalist id="dlClase"></datalist>
 
   <label>Temporada:</label>
-  <select id="filterTemporada" onchange="applyFilters()">
-    <option value="">— Todas —</option>
-  </select>
+  <input id="filterTemporada" list="dlTemporada" placeholder="— Todas —" oninput="applyFilters()" style="width:90px">
+  <datalist id="dlTemporada"></datalist>
 
   <label>Período:</label>
   <select id="filterPeriodo" onchange="applyFilters()">
@@ -405,9 +404,8 @@
   </select>
 
   <label>Licencia:</label>
-  <select id="filterLicencia" onchange="applyFilters()">
-    <option value="">— Todas —</option>
-  </select>
+  <input id="filterLicencia" list="dlLicencia" placeholder="— Todas —" oninput="applyFilters()" style="width:120px">
+  <datalist id="dlLicencia"></datalist>
 
   <label>Buscar:</label>
   <input type="text" id="searchBox" placeholder="SKU, descripción..." oninput="applyFilters()" style="width:180px">
@@ -543,11 +541,20 @@ const CAP_STOCK = {
   'BTIE062': { optima:  7000, maxima:  8500 },
 };
 
-function capStockClass(totalStock, alm) {
+function tipoTienda(cod, nombre) {
+  if ((cod || '').startsWith('BTRT')) return 'BTRT';
+  const n = (nombre || '').toUpperCase();
+  if (n.includes('OUTLET')) return 'Outlet';
+  if (n.includes('EVENTO') || n.includes('TODO COMENZO') || n.includes('NAVIDAD')) return 'PopUp';
+  return 'Tienda';
+}
+
+function capStockClass(totalStock, totalTrans, alm) {
   const cap = CAP_STOCK[alm];
   if (!cap) return '';
-  if (totalStock < cap.optima) return 'cap-critico';
-  if (totalStock < cap.maxima) return 'cap-precaucion';
+  const combined = totalStock + (totalTrans || 0);
+  if (combined < cap.optima) return 'cap-critico';
+  if (combined < cap.maxima) return 'cap-precaucion';
   return 'cap-ok';
 }
 
@@ -788,15 +795,20 @@ function esTemporadaActual(temporada) {
   return /26/.test(temporada || '');
 }
 
+function getAlmacenFilter() {
+  const v = document.getElementById('filterAlmacen').value.trim();
+  return v.split(' — ')[0].trim(); // "BTIE002 — NOMBRE" → "BTIE002"
+}
+
 function rowMatchesFilters(row) {
   const ftipo    = document.getElementById('filterTipo').value;
-  const fa       = document.getElementById('filterAlmacen').value;
+  const fa       = getAlmacenFilter();
   const fc       = document.getElementById('filterClase').value;
   const ft       = document.getElementById('filterTemporada').value;
   const fp       = document.getElementById('filterPeriodo').value;
   const fl       = document.getElementById('filterLicencia').value;
   const sb2      = document.getElementById('searchBox').value.toLowerCase().trim();
-  if (ftipo && !(row.codigo_almacen || '').startsWith(ftipo)) return false;
+  if (ftipo && tipoTienda(row.codigo_almacen, row.nombre_almacen) !== ftipo) return false;
   if (fa    && row.codigo_almacen !== fa) return false;
   if (fc    && row.clase !== fc) return false;
   if (ft    && row.temporada !== ft) return false;
@@ -836,7 +848,7 @@ const PAGE_FLAT = 500;
 function setViewMode(mode) {
   viewMode = mode;
   pageOffset = 0;
-  if (mode === 'overview') document.getElementById('filterAlmacen').value = '';
+  if (mode === 'overview') { document.getElementById('filterAlmacen').value = ''; }
   document.getElementById('btnOverview').style.fontWeight = mode === 'overview' ? '700' : '400';
   document.getElementById('btnAll').style.fontWeight      = mode === 'all'      ? '700' : '400';
   renderFlat();
@@ -844,7 +856,7 @@ function setViewMode(mode) {
 
 function renderFlat() {
   const content = document.getElementById('mainContent');
-  const fAlm    = document.getElementById('filterAlmacen').value;
+  const fAlm    = getAlmacenFilter();
 
   // Sin tienda seleccionada → depende del modo
   if (!fAlm && viewMode === 'overview') {
@@ -921,10 +933,8 @@ function renderFlat() {
 }
 
 function renderOverview(content) {
-  const ftipo = document.getElementById('filterTipo').value;
   const grupos = {};
-  data.forEach(r => {
-    if (ftipo && !(r.codigo_almacen||'').startsWith(ftipo)) return;
+  data.filter(rowMatchesFilters).forEach(r => {
     const k = r.codigo_almacen || '—';
     if (!grupos[k]) grupos[k] = { rows: [], nombre: r.nombre_almacen || k };
     grupos[k].rows.push(r);
@@ -947,14 +957,15 @@ function renderOverview(content) {
     const totalTrans = g.rows.reduce((a, r) => a + (Number(r.en_transito) || 0), 0);
     const skus       = new Set(g.rows.map(r => r.sku_padre)).size;
     const cap        = CAP_STOCK[alm];
-    const cls        = capStockClass(totalStock, alm);
+    const cls        = capStockClass(totalStock, totalTrans, alm);
 
     let capOptimaCell = '<td class="num" style="color:#bbb;">—</td>';
     let capMaximaCell = '<td class="num" style="color:#bbb;">—</td>';
     let barCell       = '<td></td>';
 
     if (cap) {
-      const pct     = Math.min(100, Math.round(totalStock / cap.maxima * 100));
+      const combined = totalStock + totalTrans;
+      const pct      = Math.min(100, Math.round(combined / cap.optima * 100));
       const barColor = cls === 'cap-ok' ? '#27ae60' : cls === 'cap-precaucion' ? '#f39c12' : '#e74c3c';
       capOptimaCell = `<td class="num" style="color:#555;">${cap.optima.toLocaleString('es-CL')}</td>`;
       capMaximaCell = `<td class="num" style="color:#555;">${cap.maxima.toLocaleString('es-CL')}</td>`;
@@ -1003,47 +1014,17 @@ function renderOverview(content) {
     </div>`;
 }
 
+function fillDatalist(dlId, items) {
+  const dl = document.getElementById(dlId);
+  if (!dl) return;
+  dl.innerHTML = items.map(v => `<option value="${String(v).replace(/"/g,'&quot;')}">`).join('');
+}
+
 function updateSelects() {
-  const almSel  = document.getElementById('filterAlmacen');
-  const claSel  = document.getElementById('filterClase');
-  const tempSel = document.getElementById('filterTemporada');
-  const licSel  = document.getElementById('filterLicencia');
-  const curAlm  = almSel.value;
-  const curCla  = claSel.value;
-  const curTemp = tempSel.value;
-  const curLic  = licSel.value;
-
-  almSel.innerHTML = '<option value="">— Todos —</option>';
-  getAlmacenes().forEach(([cod, nom]) => {
-    const o = document.createElement('option');
-    o.value = cod; o.textContent = `${cod} — ${nom}`;
-    if (cod === curAlm) o.selected = true;
-    almSel.appendChild(o);
-  });
-
-  claSel.innerHTML = '<option value="">— Todas —</option>';
-  getClases().forEach(c => {
-    const o = document.createElement('option');
-    o.value = c; o.textContent = c;
-    if (c === curCla) o.selected = true;
-    claSel.appendChild(o);
-  });
-
-  tempSel.innerHTML = '<option value="">— Todas —</option>';
-  getTemporadas().forEach(t => {
-    const o = document.createElement('option');
-    o.value = t; o.textContent = t;
-    if (t === curTemp) o.selected = true;
-    tempSel.appendChild(o);
-  });
-
-  licSel.innerHTML = '<option value="">— Todas —</option>';
-  getLicencias().forEach(l => {
-    const o = document.createElement('option');
-    o.value = l; o.textContent = l;
-    if (l === curLic) o.selected = true;
-    licSel.appendChild(o);
-  });
+  fillDatalist('dlAlmacen',  getAlmacenes().map(([cod, nom]) => `${cod} — ${nom}`));
+  fillDatalist('dlClase',    getClases());
+  fillDatalist('dlTemporada',getTemporadas());
+  fillDatalist('dlLicencia', getLicencias());
 }
 
 function updateKPIs() {
@@ -1141,7 +1122,7 @@ function clearFilters() {
 //  EXPORT CSV
 // ═══════════════════════════════════════════════
 function exportCSV() {
-  const almacen = document.getElementById('filterAlmacen').value || 'TODOS';
+  const almacen = getAlmacenFilter() || 'TODOS';
   const visible = data.filter(rowMatchesFilters);
   if (!visible.length) { showToast('Sin datos para exportar', 'err'); return; }
 
