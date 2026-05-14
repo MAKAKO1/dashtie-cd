@@ -436,7 +436,7 @@ let currentUser = null;
 // ═══════════════════════════════════════════════
 const COLS = [
   { key: 'fecha_guia_envio',  label: 'FECHA ENVÍO',     num: false },
-  { key: 'nombre_tienda',     label: 'BODEGA TIENDA',   num: false },
+  { key: 'bodega_origen',     label: 'ORIGEN',          num: false },
   { key: 'guia_envio_cd',     label: 'TRANSF SAP',      num: false },
   { key: 'n_doc_tpv',         label: 'N° TPV',          num: false },
   { key: 'fecha_recepcion',   label: 'FECHA RECEPCIÓN', num: false },
@@ -761,12 +761,13 @@ function renderStores() {
     const metaParts = Object.entries(statusCounts).map(([k, v]) => `${v} ${k}`).join(' · ');
 
     const storeName = storeRows[0]?.nombre_tienda || getNombreBodega(store);
+    const btieCode  = store.replace('BTRT', 'BTIE');
     html += `
     <div class="store-section" id="sec-${store}">
       <div class="store-header" onclick="toggleSection('${store}')">
         <div>
-          ${storeName ? `<h2 style="font-size:15px;">&#128230; ${storeName}</h2>` : `<h2>&#128230; ${store}</h2>`}
-          ${storeName ? `<div style="font-size:11px;opacity:.75;margin-top:2px;font-weight:400;">${store}</div>` : ''}
+          ${storeName ? `<h2 style="font-size:15px;">&#128230; ${storeName}</h2>` : `<h2>&#128230; ${btieCode}</h2>`}
+          ${storeName ? `<div style="font-size:11px;opacity:.75;margin-top:2px;font-weight:400;">${btieCode}</div>` : ''}
         </div>
         <div class="store-meta">
           <span>${storeRows.length} guía${storeRows.length !== 1 ? 's' : ''}</span>
