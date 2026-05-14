@@ -411,6 +411,13 @@ const MOCK_STOCK = {
   'BTIE053': { '29301984966999': 5,  '29301985066999': 6,  '10002265966999': 4,  '10002266066999': 2  },
 };
 
+const MOCK_TRANSIT = {
+  'BTRT002': { '10002265966999': 400, '10002266066999': 800 },
+  'BTRT005': { '10002265966999': 200 },
+  'BTRT045': { '10002266066999': 400 },
+  'BTRT053': { '10002265966999': 600, '10002266066999': 400 },
+};
+
 function buildMockStoreMap() {
   const map = {};
   MOCK_STORES.forEach(s => {
@@ -419,6 +426,11 @@ function buildMockStoreMap() {
       skuStocks: MOCK_STOCK[s.codigo_almacen] || {},
       skuDescs: {}
     };
+    // Añadir tránsito BTRT
+    const btrt = s.codigo_almacen.replace('BTIE', 'BTRT');
+    if (MOCK_TRANSIT[btrt]) {
+      map[btrt] = { nombre: s.nombre_almacen, skuStocks: MOCK_TRANSIT[btrt], skuDescs: {} };
+    }
   });
   return map;
 }
@@ -511,15 +523,25 @@ async function loadData() {
   // Agrupar por tienda
   const map = {};
   allRows.forEach(r => {
-    const cod  = r['Codigo Almacen'];
-    const nom  = r['Nombre Almacen'] || cod;
-    const sku  = String(r['SKU Hijo'] ?? '');
-    const stk  = Number(r['En Stock']) || 0;
-    const desc = r['Descripcion'] || r['Descripción'] || '';
+    const cod   = r['Codigo Almacen'];
+    const nom   = r['Nombre Almacen'] || cod;
+    const sku   = String(r['SKU Hijo'] ?? '');
+    const stk   = Number(r['Stock BTIE'] ?? r['En Stock']) || 0;
+    const trans = Number(r['Stock BTRT'] ?? r['En Transito']) || 0;
+    const desc  = r['Descripcion'] || r['Descripción'] || '';
+
+    // Stock en tienda (BTIE)
     if (!map[cod]) map[cod] = { nombre: nom, skuStocks: {}, skuDescs: {} };
     map[cod].nombre = nom;
     map[cod].skuStocks[sku] = (map[cod].skuStocks[sku] || 0) + stk;
     if (desc && !map[cod].skuDescs[sku]) map[cod].skuDescs[sku] = desc;
+
+    // Stock en tránsito (BTRT) — misma fila, columna separada
+    if (trans > 0) {
+      const btrt = cod.replace('BTIE', 'BTRT');
+      if (!map[btrt]) map[btrt] = { nombre: nom, skuStocks: {}, skuDescs: {} };
+      map[btrt].skuStocks[sku] = (map[btrt].skuStocks[sku] || 0) + trans;
+    }
   });
 
   storeMap = map;
